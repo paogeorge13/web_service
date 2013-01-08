@@ -146,6 +146,7 @@ public class Database {
 
 	// TODO this...
 	public void deleteADevice(String device) {
+            System.out.println("pirate proponiti");
 	}
 
 	public void selectADevice(int idF) {
