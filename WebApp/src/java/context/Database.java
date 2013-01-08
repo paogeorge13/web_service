@@ -14,7 +14,7 @@ public class Database {
 	private static final String PASS = "dw9UkgaA";
 
 	private Database() {
-		System.out.println("to elava - ok!");
+		System.out.println(" ok! ");
 
 		/*
 		DataProp = new PropertyFileData("DB.properties", false);
