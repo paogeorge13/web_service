@@ -17,12 +17,12 @@ public class Database {
 		System.out.println(" ok! ");
 
 		/*
-		DataProp = new PropertyFileData("DB.properties", false);
-		this.driver = DataProp.get_propertyDriver();
-		this.URL = DataProp.get_propertyURL();
-		this.username = DataProp.get_propertyUsername();
-		this.password = DataProp.get_propertyPassword();
-		*/
+		 DataProp = new PropertyFileData("DB.properties", false);
+		 this.driver = DataProp.get_propertyDriver();
+		 this.URL = DataProp.get_propertyURL();
+		 this.username = DataProp.get_propertyUsername();
+		 this.password = DataProp.get_propertyPassword();
+		 */
 
 		try {
 			//STEP 2: Register JDBC driver
@@ -52,7 +52,33 @@ public class Database {
 
 	//TODO this ... 
 	public void dropTable(String tableName) {
+		PreparedStatement prepstmt = null;
+		String sql = "";
+		ResultSet rs;
 
+		try {
+			sql = "DROP TABLE ?";
+			prepstmt = conn.prepareStatement(sql);
+
+			prepstmt.setString(1, tableName);
+			prepstmt.execute();
+			rs = prepstmt.executeQuery();
+			System.out.println("INFO: " + tableName + ": this table has been dropped.");
+			
+			//STEP 6: Clean-up environment
+			rs.close();
+			//	stmt.close();
+			prepstmt.close();
+		} catch (SQLException se) {
+			//Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			//Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			System.out.println("finally here...");
+		}
+		System.out.println("Goodbye!");
 	}
 
 	public void createTable(String tableName, String columns) {
@@ -62,8 +88,8 @@ public class Database {
 
 		try {
 			prepstmt = conn.prepareStatement("SELECT id, name FROM devices WHERE id = ?");
-			System.out.println("Database.java idF: " );
-			
+			System.out.println("Database.java idF: ");
+
 			prepstmt.setInt(1, 2);
 			prepstmt.execute();
 			rs = prepstmt.executeQuery();
@@ -96,8 +122,6 @@ public class Database {
 
 	// TODO this...
 	public void deletaADevice(String device) {
-
-
 	}
 
 	public void selectADevice(int idF) {
