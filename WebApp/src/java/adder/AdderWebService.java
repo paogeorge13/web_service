@@ -11,6 +11,7 @@ public class AdderWebService {
 
 
 	public AdderWebService() {
+		//maybe call. DatabaseCreate() and then the below functions
 		// TODO prwta drop
 		Database.getInstance().dropTable("");
 		Database.getInstance().dropTable("");

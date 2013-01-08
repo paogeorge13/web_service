@@ -1,36 +1,61 @@
 package context;
 
+import java.io.IOException;
 import java.sql.*;
+import java.util.Properties;
+
+/*
+ * DATABASE TABLES:
+ * 
+ * wiredInterfaces <device, interfaceName, mac, ip, mask ...>
+ * wirelessInterfaces <device, mac, essid, mode, signal ...>
+ * accessPoints <mac, essid, channel, mode, signal>
+ * pcAPs <device, mac(of AP)>
+ * devices <device>
+ * 
+ * --
+ * mobiles <mbldevice>
+ * 
+ */
 
 public class Database {
 
 	private static Database instance = null;
 	private Connection conn = null;
+
 	// JDBC driver name and database URL
-	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	/*private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_URL = "jdbc:mysql://pantheon.di.uoa.gr/sdi0900141";
 	//  Database credentials
 	private static final String USER = "sdi0900141";
-	private static final String PASS = "dw9UkgaA";
+	private static final String PASS = "dw9UkgaA"; */
+
+	private String user;
+	private String password;
+	private String jdbc_driver;
+	private String db_url;
 
 	private Database() {
 		System.out.println(" ok! ");
 
-		/*
-		 DataProp = new PropertyFileData("DB.properties", false);
-		 this.driver = DataProp.get_propertyDriver();
-		 this.URL = DataProp.get_propertyURL();
-		 this.username = DataProp.get_propertyUsername();
-		 this.password = DataProp.get_propertyPassword();
-		 */
+		Properties prop = new Properties();
+		try {
+			prop.load(getClass().getResourceAsStream("database.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.user = prop.getProperty("username");
+		this.password = prop.getProperty("password");
+		this.jdbc_driver = prop.getProperty("jdbc_driver");
+		this.db_url = prop.getProperty("URL");
 
 		try {
 			//STEP 2: Register JDBC driver
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(jdbc_driver);
 
 			//STEP 3: Open a connection
 			System.out.println("Connecting to database...");
-			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			conn = DriverManager.getConnection(db_url, user, password);
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		} catch (ClassNotFoundException ex) {
@@ -50,7 +75,6 @@ public class Database {
 		throw new CloneNotSupportedException();
 	}
 
-	//TODO this ... 
 	public void dropTable(String tableName) {
 		PreparedStatement prepstmt = null;
 		String sql = "";
@@ -64,7 +88,7 @@ public class Database {
 			prepstmt.execute();
 			rs = prepstmt.executeQuery();
 			System.out.println("INFO: " + tableName + ": this table has been dropped.");
-			
+
 			//STEP 6: Clean-up environment
 			rs.close();
 			//	stmt.close();
@@ -85,28 +109,28 @@ public class Database {
 		PreparedStatement prepstmt = null;
 		String sql = "";
 		ResultSet rs;
+		String[] field;
 
 		try {
-			prepstmt = conn.prepareStatement("SELECT id, name FROM devices WHERE id = ?");
-			System.out.println("Database.java idF: ");
-
-			prepstmt.setInt(1, 2);
-			prepstmt.execute();
-			rs = prepstmt.executeQuery();
-
-			//STEP 5: Extract data from result set
-			while (rs.next()) {
-				//Retrieve by column name
-				int id = rs.getInt("id");
-				String first = rs.getString("name");
-
-				//Display values
-				System.out.print("ID: " + id);
-				System.out.println(", Name: " + first);
+			/* prepare sql query */
+			sql = "INSERT INTO ? VALUES (?";
+			field = columns.split(" ");
+			/* lenght - 1: because the first questionmark is already printed */
+			for (int i = 0; i != (field.length - 1); ++i) {
+				sql += ", ?";
 			}
-			//STEP 6: Clean-up environment
-			rs.close();
-			//	stmt.close();
+			sql += ")";
+
+			prepstmt = conn.prepareStatement(sql);
+
+			System.out.println("Sql query for insertion: " + sql);
+
+			prepstmt.setString(1, tableName);
+			for (int i = 0; i != field.length; ++i) {
+				prepstmt.setString(i + 1, field[i]);
+			}
+			prepstmt.execute();
+			//stmt.close();
 			prepstmt.close();
 		} catch (SQLException se) {
 			//Handle errors for JDBC
@@ -137,14 +161,6 @@ public class Database {
 			prepstmt.execute();
 			rs = prepstmt.executeQuery();
 
-			/*
-			 //STEP 4: Execute a query
-			 System.out.println("Creating statement with id 13...");
-			 stmt = conn.createStatement();
-			 sql = "SELECT id, name FROM devices WHERE id=13";
-			 rs = stmt.executeQuery(sql);
-			 */
-
 			//STEP 5: Extract data from result set
 			while (rs.next()) {
 				//Retrieve by column name
@@ -157,7 +173,7 @@ public class Database {
 			}
 			//STEP 6: Clean-up environment
 			rs.close();
-			//	stmt.close();
+			//stmt.close();
 			prepstmt.close();
 		} catch (SQLException se) {
 			//Handle errors for JDBC
