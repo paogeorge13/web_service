@@ -145,7 +145,7 @@ public class Database {
 	}
 
 	// TODO this...
-	public void deletaADevice(String device) {
+	public void deleteADevice(String device) {
 	}
 
 	public void selectADevice(int idF) {
