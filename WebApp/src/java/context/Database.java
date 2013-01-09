@@ -23,15 +23,10 @@ public class Database {
 	private static Database instance = null;
 	private Connection conn = null;
 
-	// JDBC driver name and database URL
-	/*private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	private static final String DB_URL = "jdbc:mysql://pantheon.di.uoa.gr/sdi0900141";
-	//  Database credentials
-	private static final String USER = "sdi0900141";
-	private static final String PASS = "dw9UkgaA"; */
-
+	 //  Database credentials
 	private String user;
 	private String password;
+	// JDBC driver name and database URL
 	private String jdbc_driver;
 	private String db_url;
 
@@ -146,7 +141,7 @@ public class Database {
 
 	// TODO this...
 	public void deleteADevice(String device) {
-            System.out.println("pirate proponiti");
+		System.out.println("pirate proponiti");
 	}
 
 	public void selectADevice(int idF) {

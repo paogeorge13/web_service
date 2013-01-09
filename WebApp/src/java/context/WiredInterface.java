@@ -26,6 +26,10 @@ public class WiredInterface {
 	public WiredInterface(String str) {
 		this.InterfaceName = str;	
 	}
+
+	public String getInterfaceName() {
+		return InterfaceName;
+	}
 			
 	public String get_ConsumedRate() {return this.ConsumedRate;}
 
@@ -45,7 +49,7 @@ public class WiredInterface {
 
 	public String get_InterfaceMAC() {return this.InterfaceMAC;}
 
-	public boolean get_IsWireless() {return this.IsWireless;}
+	public boolean isWireless() {return this.IsWireless;}
 
 	public String get_InterfaceName() {return this.InterfaceName;}
 

@@ -27,8 +27,6 @@ public class AdderWebService {
 	}
 
 
-	
-
 	/**
 	 * Web service operation
 	 */
@@ -39,5 +37,15 @@ public class AdderWebService {
 
 		CacheMemory.getInstance().updateMem(device, md);
 		//Database.getInstance().selectADevice(id);
+	}
+
+	public void infoOf(String device, String interf) {
+		CacheMemory memory = CacheMemory.getInstance();
+		if (memory.hasLatestInfoOf(device)) {
+		//	memory.getInfoOf(device, interf);
+			
+
+
+		}
 	}
 }
