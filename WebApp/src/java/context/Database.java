@@ -9,9 +9,9 @@ import java.util.Properties;
  * 
  * wiredInterfaces <device, interfaceName, mac, ip, mask ...>
  * wirelessInterfaces <device, mac, essid, mode, signal ...>
- * accessPoints <mac, essid, channel, mode, signal>
- * pcAPs <device, mac(of AP)>
- * devices <device>
+ * accessPoints <mac, essid, channel, mode>
+ * pcAPs <device, mac(of AP), signal>
+ * devices <device, timestamp>
  * 
  * --
  * mobiles <mbldevice>
@@ -31,7 +31,7 @@ public class Database {
 	private String db_url;
 
 	private Database() {
-		System.out.println(" ok! ");
+		System.out.println("Database has been just created!");
 
 		Properties prop = new Properties();
 		try {
@@ -144,6 +144,7 @@ public class Database {
 		System.out.println("pirate proponiti");
 	}
 
+
 	public void selectADevice(int idF) {
 		Statement stmt = null;
 		PreparedStatement prepstmt = null;
@@ -191,5 +192,9 @@ public class Database {
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	public void getInfoOf(String device, String interf) {
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 }

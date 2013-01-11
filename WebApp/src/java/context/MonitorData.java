@@ -1,13 +1,32 @@
 package context;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class MonitorData {
 
-	private ArrayList<WiredInterface> listA;
-	private ArrayList<WirelessInterface> listB;
-	private ArrayList<AccessPoint> listC;
+	private ArrayList<WiredInterface> listA = null;
+	private ArrayList<WirelessInterface> listB = null;
+	private ArrayList<AccessPoint> listC = null;
+
+	public MonitorData() {
+		System.out.println("Monitor Data has been just created!");
+		listA = new ArrayList<WiredInterface>();
+		listB = new ArrayList<WirelessInterface>();
+		listC = new ArrayList<AccessPoint>();
+	}
+
+	public void setListA(ArrayList<WiredInterface> listA) {
+		this.listA = listA;
+	}
+
+	public void setListB(ArrayList<WirelessInterface> listB) {
+		this.listB = listB;
+	}
+
+	public void setListC(ArrayList<AccessPoint> listC) {
+		this.listC = listC;
+	}
 
 	public ArrayList<WiredInterface> getListA() {
 		return listA;
@@ -21,12 +40,26 @@ public class MonitorData {
 		return listC;
 	}
 
-	public ArrayList<String> getInterfNameList() {
+	public ArrayList<String[]> getInterfNameList() {
+		ArrayList<String[]> nameList = new ArrayList<String[]>();
+
+		for (int i = 0; i != listA.size(); ++i) {
+			if (!listA.get(i).isWireless()) {
+				String[] f = new String[2];
+				f[0] = listA.get(i).get_InterfaceName();
+				f[1] = Integer.toString(listA.get(i).hashCode());
+				nameList.add(f);
+			}
+		}
+		return nameList;
+	}
+
+	public ArrayList<String> getInterfNameList2() {
 		ArrayList<String> nameList = new ArrayList<String>();
 
 		for (int i = 0; i != listA.size(); ++i) {
-			if (listA.get(i).isWireless()) {
-				nameList.add(listA.get(i).getInterfaceName());
+			if (!listA.get(i).isWireless()) {
+				nameList.add(listA.get(i).get_InterfaceName());
 			}
 		}
 		return nameList;
@@ -36,18 +69,20 @@ public class MonitorData {
 		ArrayList<String> nameList = new ArrayList<String>();
 
 		for (int i = 0; i != listB.size(); ++i) {
-			nameList.add(listB.get(i).getInterfaceName());
+			if (listB.get(i).isWireless()) {
+				nameList.add(listB.get(i).get_InterfaceName());
+			}
 		}
 		return nameList;
 	}
-/*
-	public ArrayList<String> getAPNameList(ArrayList<AccessPoint> list) {
-		ArrayList<String> nameList = new ArrayList<String>();
+	/*
+	 public ArrayList<String> getAPNameList(ArrayList<AccessPoint> list) {
+	 ArrayList<String> nameList = new ArrayList<String>();
 
-		for (int i = 0; i != list.size(); ++i) {
-			nameList.add(list.get(i).getInterfaceName());
-		}
-		return nameList;
-	}
-	*/
+	 for (int i = 0; i != list.size(); ++i) {
+	 nameList.add(list.get(i).getInterfaceName());
+	 }
+	 return nameList;
+	 }
+	 */
 }
