@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Metro/2.2.0-1 (tags/2.2.0u1-7139; 2012-06-02T10:55:19+0000) JAXWS-RI/2.2.6-2 JAXWS/2.2 svn-revision#unknown. --><xs:schema xmlns:tns="http://adder/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://adder/">
+
+<xs:element name="setMonitorData" type="tns:setMonitorData"/>
+
+<xs:complexType name="setMonitorData">
+<xs:sequence>
+<xs:element name="device" type="xs:string" minOccurs="0"/>
+<xs:element name="md" type="tns:monitorData" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="monitorData">
+<xs:sequence>
+<xs:element name="listA" type="tns:wiredInterface" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="listB" type="tns:wirelessInterface" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="listC" type="tns:accessPoint" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="wiredInterface">
+<xs:sequence>
+<xs:element name="_Bcast" type="xs:string" minOccurs="0"/>
+<xs:element name="_ConsumedRate" type="xs:string" minOccurs="0"/>
+<xs:element name="_CurrentTransfer" type="xs:string" minOccurs="0"/>
+<xs:element name="_DefaultGetway" type="xs:string" minOccurs="0"/>
+<xs:element name="_InterfaceIP" type="xs:string" minOccurs="0"/>
+<xs:element name="_InterfaceMAC" type="xs:string" minOccurs="0"/>
+<xs:element name="_InterfaceMask" type="xs:string" minOccurs="0"/>
+<xs:element name="_InterfaceName" type="xs:string" minOccurs="0"/>
+<xs:element name="_MaxTransfer" type="xs:string" minOccurs="0"/>
+<xs:element name="_NetworkAddress" type="xs:string" minOccurs="0"/>
+<xs:element name="_PacketError" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="wirelessInterface">
+<xs:complexContent>
+<xs:extension base="tns:wiredInterface">
+<xs:sequence>
+<xs:element name="_BaseStationMAC" type="xs:string" minOccurs="0"/>
+<xs:element name="_Channel" type="xs:string" minOccurs="0"/>
+<xs:element name="_DiscardedPackets" type="xs:string" minOccurs="0"/>
+<xs:element name="_ESSID" type="xs:string" minOccurs="0"/>
+<xs:element name="_LinkQuality" type="xs:string" minOccurs="0"/>
+<xs:element name="_Mode" type="xs:string" minOccurs="0"/>
+<xs:element name="_NoisePower" type="xs:string" minOccurs="0"/>
+<xs:element name="_SignalLevel" type="xs:string" minOccurs="0"/>
+<xs:element name="_TransmitPower" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:extension>
+</xs:complexContent>
+</xs:complexType>
+
+<xs:complexType name="accessPoint">
+<xs:sequence>
+<xs:element name="_APChannel" type="xs:string" minOccurs="0"/>
+<xs:element name="_APESSID" type="xs:string" minOccurs="0"/>
+<xs:element name="_APMAC" type="xs:string" minOccurs="0"/>
+<xs:element name="_APMode" type="xs:string" minOccurs="0"/>
+<xs:element name="_APSignalLevel" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
