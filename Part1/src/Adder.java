@@ -12,7 +12,7 @@ public class Adder implements Runnable {
 	}
 
 	public void run() {
-		while ("the truth about forever is that it is hapenning right now" != null) {
+//		while ("the truth about forever is that it is hapenning right now" != null) {
 
 			try {
 				System.out.println("I am sleeping");
@@ -43,7 +43,7 @@ public class Adder implements Runnable {
 			/* invoke web service */
 			setMonitorData("green-tower", md);
 			System.out.println("I sent the data");
-		}
+//		}
 	}
 
 	private void copyWiredInterface(adder.WiredInterface newW, interfaces.WiredInterface w) {
@@ -51,14 +51,14 @@ public class Adder implements Runnable {
 		newW.setInterfaceIP(w.get_InterfaceIP());
 		System.out.println("ip given: " + w.get_InterfaceIP());
 		newW.setInterfaceMAC(w.get_InterfaceMAC());
-		newW.setBcast(null);
-		newW.setConsumedRate(null);
-		newW.setCurrentTransfer(null);
-		newW.setDefaultGetway(null);
-		newW.setInterfaceMask(null);
-		newW.setMaxTransfer(null);
-		newW.setNetworkAddress(null);
-		newW.setPacketError(null);
+		newW.setBcast(w.get_Bcast());
+		newW.setConsumedRate(w.get_ConsumedRate());
+		newW.setCurrentTransfer(w.get_CurrentTransfer());
+		newW.setDefaultGetway(w.get_DefaultGetway());
+		newW.setInterfaceMask(w.get_InterfaceMask());
+		newW.setMaxTransfer(w.get_MaxTransfer());
+		newW.setNetworkAddress(w.get_NetworkAddress());
+		newW.setPacketError(w.get_PacketError());
 	}
 
 	private static void setMonitorData(java.lang.String device, adder.MonitorData md) {
