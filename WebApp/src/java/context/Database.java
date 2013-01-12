@@ -85,7 +85,8 @@ public class Database {
 			for (int i = 0; i != tables.length; ++i) {
 				/* prepare sql query */
 				sql = "CREATE TABLE ? ( ? VARCHAR(255)";
-				for (int j = 0; j != tables[i].length; ++j) {
+				/* lenght - 2 because the first two questionmarks are ready */
+				for (int j = 0; j != tables[i].length-2; ++j) {
 					sql += ", ? VARCHAR(255)";
 				}
 				sql += ")";
