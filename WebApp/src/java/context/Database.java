@@ -81,15 +81,15 @@ public class Database {
 		PreparedStatement prepstmt = null;
 		String sql = "";
 		String type1 = "VARCHAR(255)";
-		String space = " "; 
+		String space = " ";
 
 		try {
 			for (int i = 0; i != tables.length; ++i) {
 				/* prepare sql query */
 				sql = "CREATE TABLE";  // ? ( ? VARCHAR(255)";
-				sql += space + tables[i][0] + space; 
+				sql += space + tables[i][0] + space;
 				sql += "(" + space + tables[i][1] + space + type1;
-				
+
 				for (int j = 2; j != tables[i].length; ++j) {
 					sql += "," + space + tables[i][j] + space + type1 + space;
 				}
@@ -115,23 +115,19 @@ public class Database {
 		System.out.println("Goodbye!");
 	}
 
-	public void dropTable() {
+	public void dropTables() {
 		PreparedStatement prepstmt = null;
 		String sql = "";
-		ResultSet rs;
+		String space = " ";
 
 		try {
-			sql = "DROP TABLE ?";
-			prepstmt = conn.prepareStatement(sql);
-
 			for (int i = 0; i != tables.length; i++) {
-				prepstmt.setString(1, tables[i][0]);
+				sql = "DROP TABLE";
+				sql += space + tables[i][0];
+				prepstmt = conn.prepareStatement(sql);
 				prepstmt.execute();
-				rs = prepstmt.executeQuery();
 				System.out.println("INFO: " + tables[i][0] + ": this table has been dropped.");
 
-				//STEP 6: Clean-up environment
-				rs.close();
 			}
 			prepstmt.close();
 		} catch (SQLException se) {

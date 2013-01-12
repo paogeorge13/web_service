@@ -36,7 +36,8 @@ public class AdderWebService {
 		//TODO: Close property file
 		//maybe call. DatabaseCreate() and then the below functions
 		// TODO prwta drop
-		db.createTables();
+//		db.createTables();
+		db.dropTables();
 	}
 
 	/**
