@@ -37,14 +37,6 @@ public class Database {
 		{"devices", "device", "timestamp"}
 	};
 
-	public void createTables() {
-
-
-		for (int i = 0; i != )
-
-
-	}
-
 	private Database() {
 		System.out.println("Database has been just created!");
 
@@ -85,7 +77,50 @@ public class Database {
 		throw new CloneNotSupportedException();
 	}
 
-	public void dropTable(String tableName) {
+//	CREATE TABLE Persons (
+//	P_Id int,
+//	LastName varchar(255),
+//	FirstName varchar(255),
+//	Address varchar(255),
+//	City varchar(255))
+	public void createTables() {
+		PreparedStatement prepstmt = null;
+		String sql = "";
+
+		try {
+			for (int i = 0; i != tables.length; ++i) {
+				/* prepare sql query */
+				sql = "CREATE TABLE ? ( ? VARCHAR(255)";
+				for (int j = 0; j != tables[i].length; ++j) {
+					sql += ", ? VARCHAR(255)";
+				}
+				sql += ")";
+
+				prepstmt = conn.prepareStatement(sql);
+
+				/* set values in the sql query */
+				for (int j = 0; j != tables[i].length; ++j) {
+					prepstmt.setString(j + 1, tables[i][j]);
+				}
+
+				System.out.println("Sql query for insertion: " + sql);
+
+				prepstmt.execute();
+				prepstmt.close();
+			}
+		} catch (SQLException se) {
+			//Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			//Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			System.out.println("finally here...");
+		}
+		System.out.println("Goodbye!");
+	}
+
+	public void dropTable() {
 		PreparedStatement prepstmt = null;
 		String sql = "";
 		ResultSet rs;
@@ -94,14 +129,15 @@ public class Database {
 			sql = "DROP TABLE ?";
 			prepstmt = conn.prepareStatement(sql);
 
-			prepstmt.setString(1, tableName);
-			prepstmt.execute();
-			rs = prepstmt.executeQuery();
-			System.out.println("INFO: " + tableName + ": this table has been dropped.");
+			for (int i = 0; i != tables.length; i++) {
+				prepstmt.setString(1, tables[i][0]);
+				prepstmt.execute();
+				rs = prepstmt.executeQuery();
+				System.out.println("INFO: " + tables[i][0] + ": this table has been dropped.");
 
-			//STEP 6: Clean-up environment
-			rs.close();
-			//	stmt.close();
+				//STEP 6: Clean-up environment
+				rs.close();
+			}
 			prepstmt.close();
 		} catch (SQLException se) {
 			//Handle errors for JDBC
@@ -395,15 +431,21 @@ public class Database {
 			rs = prepstmt.executeQuery();
 			while (rs.next()) {
 				w.set_InterfaceMAC(rs.getString("interfaceMAC"));
-				/*
-				 .
-				 .
-				 .
-				 .
-				 .*/
+				w.set_InterfaceIP(rs.getNString("interfaceIP"));
+				w.set_InterfaceMask(rs.getNString("interfaceMask"));
+				w.set_NetworkAddress(rs.getNString("networkAddress"));
+				w.set_Bcast(rs.getNString("bcast"));
+				w.set_DefaultGetway(rs.getString("defaultGetway"));
+				w.set_MaxTransfer(rs.getString("maxTransfer"));
+				w.set_CurrentTransfer(rs.getString("currentTransfer"));
+				w.set_ConsumedRate(rs.getString("consumedRate"));
+				w.set_PacketError(rs.getString("packetError"));
+
+
 			}
 		} catch (SQLException ex) {
-			Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(Database.class
+				.getName()).log(Level.SEVERE, null, ex);
 		}
 		return w;
 	}
@@ -425,15 +467,28 @@ public class Database {
 			rs = prepstmt.executeQuery();
 			while (rs.next()) {
 				wl.set_InterfaceMAC(rs.getString("interfaceMAC"));
-				/*
-				 .
-				 .
-				 .
-				 .
-				 .*/
+				wl.set_InterfaceIP(rs.getNString("interfaceIP"));
+				wl.set_InterfaceMask(rs.getNString("interfaceMask"));
+				wl.set_NetworkAddress(rs.getNString("networkAddress"));
+				wl.set_Bcast(rs.getNString("bcast"));
+				wl.set_DefaultGetway(rs.getString("defaultGetway"));
+				wl.set_MaxTransfer(rs.getString("maxTransfer"));
+				wl.set_CurrentTransfer(rs.getString("currentTransfer"));
+				wl.set_ConsumedRate(rs.getString("consumedRate"));
+				wl.set_PacketError(rs.getString("packetError"));
+				wl.set_BaseStationMAC(rs.getString("baseStationMAC"));
+				wl.set_ESSID(rs.getString("essid"));
+				wl.set_Channel(rs.getString("channel"));
+				wl.set_Mode(rs.getString("mode"));
+				wl.set_TransmitPower(rs.getString("transmitPower"));
+				wl.set_LinkQuality(rs.getString("linkQuality"));
+				wl.set_SignalLevel(rs.getString("linkQuality"));
+				wl.set_NoisePower(rs.getString("noisePower"));
+				wl.set_DiscardedPackets(rs.getString("discardedPackets"));
 			}
 		} catch (SQLException ex) {
-			Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(Database.class
+				.getName()).log(Level.SEVERE, null, ex);
 		}
 		return wl;
 
