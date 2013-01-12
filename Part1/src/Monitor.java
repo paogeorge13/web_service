@@ -37,7 +37,6 @@ public class Monitor implements Runnable {
 		this.data = new Data(prop);
 	}*/
 	
-	
 	public Monitor(PropertyFileData prop) {
 		this.prop = prop;
 		data = Data.getInstance();
