@@ -25,7 +25,6 @@ public class AdderWebService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		deletionRun = new DeletionThread(Integer.parseInt(prop.getProperty("T")));
 		deletionThread = new Thread(deletionRun);
 		deletionThread.start();
@@ -37,18 +36,7 @@ public class AdderWebService {
 		//TODO: Close property file
 		//maybe call. DatabaseCreate() and then the below functions
 		// TODO prwta drop
-		/*
-		 Database.getInstance().dropTable("");
-		 Database.getInstance().dropTable("");
-		 Database.getInstance().dropTable("");
-		 Database.getInstance().dropTable("");
-		 // TODO create tables in database
-		 Database.getInstance().createTable("", "");
-		 Database.getInstance().createTable("", "");
-		 Database.getInstance().createTable("", "");
-		 Database.getInstance().createTable("", "");
-		 */
-		//TODO thread for deletion
+		db.createTables();
 	}
 
 	/**
@@ -72,9 +60,10 @@ public class AdderWebService {
 		}
 		System.out.println("");
 		System.out.println("--------------------------------------");
-		
+		/*	
 		memory.update(device, md);
 		memory.printMemory();
+		*/
 	}
 
 	private void infoOf(String device, String interf) {
