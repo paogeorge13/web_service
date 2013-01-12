@@ -36,8 +36,9 @@ public class AdderWebService {
 		//TODO: Close property file
 		//maybe call. DatabaseCreate() and then the below functions
 		// TODO prwta drop
-//		db.createTables();
 		db.dropTables();
+		db.createTables();
+//		db.dropTables();
 	}
 
 	/**
@@ -65,6 +66,13 @@ public class AdderWebService {
 		memory.update(device, md);
 		memory.printMemory();
 		*/
+		for (int i = 0; i != md.getListA().size(); ++i ) {
+			db.insertADevice(device, md.getListA().get(i));
+		}
+		for (int i = 0; i != md.getListB().size(); ++i ) {
+			db.insertADevice(device, md.getListB().get(i));
+		}
+		db.close();
 	}
 
 	private void infoOf(String device, String interf) {

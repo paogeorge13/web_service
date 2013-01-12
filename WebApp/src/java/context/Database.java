@@ -127,7 +127,6 @@ public class Database {
 				prepstmt = conn.prepareStatement(sql);
 				prepstmt.execute();
 				System.out.println("INFO: " + tables[i][0] + ": this table has been dropped.");
-
 			}
 			prepstmt.close();
 		} catch (SQLException se) {
@@ -304,7 +303,7 @@ public class Database {
 
 		try {
 			/* prepare sql query */
-			sql = "INSERT INTO wiredInterfaces VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			sql = "INSERT INTO wiredInterfaces VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			prepstmt = conn.prepareStatement(sql);
 
@@ -319,6 +318,7 @@ public class Database {
 			prepstmt.setString(9, wi.get_MaxTransfer());
 			prepstmt.setString(10, wi.get_CurrentTransfer());
 			prepstmt.setString(11, wi.get_ConsumedRate());
+			prepstmt.setString(12, wi.get_PacketError());
 
 			System.out.println("Sql query for insertion: " + sql);
 
