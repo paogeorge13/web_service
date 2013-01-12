@@ -29,6 +29,21 @@ public class Database {
 	// JDBC driver name and database URL
 	private String jdbc_driver;
 	private String db_url;
+	private String[][] tables = {
+		{"wiredInterfaces", "device", "interfaceName", "interfaceMac", "interfaceIP", "interfaceMask", "networkAddress", "bcast", "defaultGetway", "maxTranfer", "currentTransfer", "consumedRate", "packetError"},
+		{"wirelessInterfaces", "device", "interfaceName", "interfaceMac", "interfaceIP", "interfaceMask", "networkAddress", "bcast", "defaultGetway", "maxTranfer", "currentTransfer", "consumedRate", "packetError", "baseStationMAC", "essid", "channel", "mode", "transmitPower", "linkQuality", "signalLevel", "noisePower", "discardedPackets"},
+		{"accessPoints", "aPMAC", "aPESSID", "aPChannel", "aPMode"},
+		{"pcAPs", "device", "APMAC", "aPSignalLevel"},
+		{"devices", "device", "timestamp"}
+	};
+
+	public void createTables() {
+
+
+		for (int i = 0; i != )
+
+
+	}
 
 	private Database() {
 		System.out.println("Database has been just created!");
@@ -186,8 +201,76 @@ public class Database {
 
 	}
 
+	public void updateADevice(String device, WirelessInterface wf) {
+		PreparedStatement prepstmt = null;
+		String sql = "";
+		try {
+			/* prepare sql query */
+			sql = "UPDATE wirelessInterfaces SET interfaceName = ?, interfaceMAC = ?, interfaceIP = ?, interfaceMask = ?, networkAddress = ?, bcast = ?, defaultGetway = ?, maxTransfer = ?, currentTransfer = ?, consumedRate = ?, baseStationMAC = ?, ESSID = ?, channel = ?, mode = ?, transmitPower = ?, linkQuality = ?, signalLevel = ?, NoisePower = ?, DiscardedPackets = ? WHERE device = ?";
+			prepstmt = conn.prepareStatement(sql);
+			prepstmt.setString(1, wf.get_InterfaceName());
+			prepstmt.setString(2, wf.get_InterfaceMAC());
+			prepstmt.setString(3, wf.get_InterfaceIP());
+			prepstmt.setString(4, wf.get_InterfaceMask());
+			prepstmt.setString(5, wf.get_NetworkAddress());
+			prepstmt.setString(6, wf.get_Bcast());
+			prepstmt.setString(7, wf.get_DefaultGetway());
+			prepstmt.setString(8, wf.get_MaxTransfer());
+			prepstmt.setString(9, wf.get_CurrentTransfer());
+			prepstmt.setString(10, wf.get_ConsumedRate());
+			prepstmt.setString(11, wf.get_BaseStationMAC());
+			prepstmt.setString(12, wf.get_ESSID());
+			prepstmt.setString(13, wf.get_Channel());
+			prepstmt.setString(14, wf.get_Mode());
+			prepstmt.setString(15, wf.get_TransmitPower());
+			prepstmt.setString(16, wf.get_LinkQuality());
+			prepstmt.setString(17, wf.get_SignalLevel());
+			prepstmt.setString(18, wf.get_NoisePower());
+			prepstmt.setString(19, wf.get_DiscardedPackets());
+			prepstmt.setString(20, device);
+			System.out.println("Sql query for insertion: " + sql);
+			prepstmt.execute();
+			prepstmt.close();
+		} catch (SQLException se) {
+			//Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			//Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			System.out.println("finally here...");
+		}
+		System.out.println("Goodbye!");
+
+	}
+
+	public void updateADevice(String device, AccessPoint ac) {
+		PreparedStatement prepstmt = null;
+		String sql = "";
+		try {
+			/* prepare sql query */
+			sql = "UPDATE pcAPs SET mac = ?, signal = ? WHERE device = ?";
+			prepstmt = conn.prepareStatement(sql);
+			prepstmt.setString(1, ac.get_APMAC());
+			prepstmt.setString(3, ac.get_APSignalLevel());
+			System.out.println("Sql query for insertion: " + sql);
+			prepstmt.execute();
+			prepstmt.close();
+		} catch (SQLException se) {
+			//Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			//Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			System.out.println("finally here...");
+		}
+		System.out.println("Goodbye!");
+
+	}
 //	INSERT INTO table_name
 //	VALUES (value1, value2, value3,...)
+
 	public void insertADevice(String device, WiredInterface wi) {
 		PreparedStatement prepstmt = null;
 		String sql = "";
@@ -226,7 +309,6 @@ public class Database {
 		System.out.println("Goodbye!");
 
 	}
-
 
 	public void insertADevice(String device, WirelessInterface wf) {
 		PreparedStatement prepstmt = null;
@@ -330,10 +412,10 @@ public class Database {
 		PreparedStatement prepstmt = null;
 		ResultSet rs;
 		WirelessInterface wl = new WirelessInterface();
-		 
+
 		try {
 
-			String sql = "SELECT interfaceMAC, interfaceIP, interfaceMask, networkAddress, bcast, defaultGetway, maxTransfer, currentTransfer, consumedRate, packetError, BaseStationMAC, ESSID, Channel, Mode, TransmitPower, LinkQuality, SignalLevel,NoisePower, DiscardedPackets"
+			String sql = "SELECT interfaceMAC, interfaceIP, interfaceMask, networkAddress, bcast, defaultGetway, maxTransfer, currentTransfer, consumedRate, packetError, baseStationMAC, essid, channel, mode, transmitPower, linkQuality, signalLevel, noisePower, discardedPackets"
 				+ "FROM wiredInterfaces"
 				+ "WHERE device = ? AND interfaceName = ?";
 			prepstmt = conn.prepareStatement(sql);
