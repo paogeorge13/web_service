@@ -1,6 +1,8 @@
 package adder;
 
 import context.*;
+import java.io.IOException;
+import java.util.Properties;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -11,8 +13,28 @@ public class AdderWebService {
 
 	private CacheMemory memory = CacheMemory.getInstance();
 	private Database db = Database.getInstance();
+	private Thread deletionThread;
+	private Runnable deletionRun;
+	private Thread updateDbThread;
+	private Runnable updateDbRun;
 
 	public AdderWebService() {
+		Properties prop = new Properties();
+		try {
+			prop.load(getClass().getResourceAsStream("web_service.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		deletionRun = new DeletionThread(Integer.parseInt(prop.getProperty("T")));
+		deletionThread = new Thread(deletionRun);
+		deletionThread.start();
+
+		updateDbRun = new UpdateDbThread();
+		updateDbThread = new Thread(updateDbRun);
+		updateDbThread.start();
+		
+		//TODO: Close property file
 		//maybe call. DatabaseCreate() and then the below functions
 		// TODO prwta drop
 		/*

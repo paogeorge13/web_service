@@ -1,67 +1,137 @@
 package context;
 
 public class WiredInterface {
-		
+
 	/*
 	 *  WiredInterface members
 	 *  mutators
 	 *  accessors
 	 */
-		
-	private String InterfaceName;		
-	private boolean IsWireless;	
-	private String InterfaceMAC;		
-	private String InterfaceIP;			
-	private String InterfaceMask;		
-	private String NetworkAddress;			
-	private String Bcast;		
-	private String DefaultGetway;		
-	private String MaxTransfer;			
-	private String CurrentTransfer;		
-	private String ConsumedRate;		
-	private String PacketError;	
-		
-	public WiredInterface() {}
-		
-	public WiredInterface(String str) {
-		this.InterfaceName = str;	
+	private String interfaceName;
+	private boolean isWireless;
+	private String interfaceMAC;
+	private String interfaceIP;
+	private String interfaceMask;
+	private String networkAddress;
+	private String bcast;
+	private String defaultGetway;
+	private String maxTransfer;
+	private String currentTransfer;
+	private String consumedRate;
+	private String packetError;
+
+	public WiredInterface() {
 	}
-			
-	public void set_ConsumedRate(String str) {this.ConsumedRate = str;}
-	public String get_ConsumedRate() {return this.ConsumedRate;}
 
-	public void set_CurrentTransfer(String str) {this.CurrentTransfer = str;}
-	public String get_CurrentTransfer() {return this.CurrentTransfer;}
+	public WiredInterface(String str) {
+		this.interfaceName = str;
+	}
 
-	public void set_MaxTransfer(String str) {this.MaxTransfer = str;}
-	public String get_MaxTransfer() {return this.MaxTransfer;}
+	public void set_ConsumedRate(String str) {
+		this.consumedRate = str;
+	}
 
-	public void set_DefaultGetway(String str) {this.DefaultGetway = str;}
-	public String get_DefaultGetway() {return this.DefaultGetway;}
-		
-	public void set_Bcast(String str) {this.Bcast = str;}
-	public String get_Bcast() {return this.Bcast;}
+	public String get_ConsumedRate() {
+		return this.consumedRate;
+	}
 
-	public void set_NetworkAddress(String str) {this.NetworkAddress = str;}
-	public String get_NetworkAddress() {return this.NetworkAddress;}
+	public void set_CurrentTransfer(String str) {
+		this.currentTransfer = str;
+	}
 
-	public void set_InterfaceMask(String str) {this.InterfaceMask = str;}
-	public String get_InterfaceMask() {return this.InterfaceMask;}
+	public String get_CurrentTransfer() {
+		return this.currentTransfer;
+	}
 
-	public void set_InterfaceIP(String str) {this.InterfaceIP = str;}
-	public String get_InterfaceIP() {return this.InterfaceIP;}
+	public void set_MaxTransfer(String str) {
+		this.maxTransfer = str;
+	}
 
-	public void set_InterfaceMAC(String str) {this.InterfaceMAC = str;}
-	public String get_InterfaceMAC() {return this.InterfaceMAC;}
+	public String get_MaxTransfer() {
+		return this.maxTransfer;
+	}
+
+	public void set_DefaultGetway(String str) {
+		this.defaultGetway = str;
+	}
+
+	public String get_DefaultGetway() {
+		return this.defaultGetway;
+	}
+
+	public void set_Bcast(String str) {
+		this.bcast = str;
+	}
+
+	public String get_Bcast() {
+		return this.bcast;
+	}
+
+	public void set_NetworkAddress(String str) {
+		this.networkAddress = str;
+	}
+
+	public String get_NetworkAddress() {
+		return this.networkAddress;
+	}
+
+	public void set_InterfaceMask(String str) {
+		this.interfaceMask = str;
+	}
+
+	public String get_InterfaceMask() {
+		return this.interfaceMask;
+	}
+
+	public void set_InterfaceIP(String str) {
+		this.interfaceIP = str;
+	}
+
+	public String get_InterfaceIP() {
+		return this.interfaceIP;
+	}
+
+	public void set_InterfaceMAC(String str) {
+		this.interfaceMAC = str;
+	}
+
+	public String get_InterfaceMAC() {
+		return this.interfaceMAC;
+	}
 
 	//TODO: change this name
-	public void isWireless(boolean bln) {this.IsWireless = bln;}
-	public boolean isWireless() {return this.IsWireless;}
+	public void set_isWireless(boolean bln) {
+		this.isWireless = bln;
+	}
 
-	public void set_InterfaceName(String str) {this.InterfaceName = str;}
-	public String get_InterfaceName() {return this.InterfaceName;}
+	public boolean isWireless() {
+		return this.isWireless;
+	}
 
-	public void set_PacketError(String str) {this.PacketError = str;}
-	public String get_PacketError() {return this.PacketError;}
+	public void set_InterfaceName(String str) {
+		this.interfaceName = str;
+	}
 
+	public String get_InterfaceName() {
+		return this.interfaceName;
+	}
+
+	public void set_PacketError(String str) {
+		this.packetError = str;
+	}
+
+	public String get_PacketError() {
+		return this.packetError;
+	}
+
+	@Override
+	public int hashCode() {
+		final int seed = 31;
+		int result = 1;
+		result = seed * result + ((interfaceName == null) ? 0 : interfaceName.hashCode());
+		result = seed * result + ((interfaceMAC == null) ? 0 : interfaceMAC.hashCode());
+		result = seed * result + ((interfaceIP == null) ? 0 : interfaceIP.hashCode());
+		return result;
+		//return super.hashCode();
+	}
 }

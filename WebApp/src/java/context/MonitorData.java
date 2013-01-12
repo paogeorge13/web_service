@@ -48,6 +48,7 @@ public class MonitorData {
 				String[] f = new String[2];
 				f[0] = listA.get(i).get_InterfaceName();
 				f[1] = Integer.toString(listA.get(i).hashCode());
+				System.out.println("for " + f[0] + " I found this hashcode: " + listA.get(i).hashCode());
 				nameList.add(f);
 			}
 		}
@@ -65,13 +66,14 @@ public class MonitorData {
 		return nameList;
 	}
 
-	public ArrayList<String> getWirInterfNameList() {
-		ArrayList<String> nameList = new ArrayList<String>();
+	public ArrayList<String[]> getWirInterfNameList() {
+		ArrayList<String[]> nameList = new ArrayList<String[]>();
 
 		for (int i = 0; i != listB.size(); ++i) {
-			if (listB.get(i).isWireless()) {
-				nameList.add(listB.get(i).get_InterfaceName());
-			}
+			String[] f = new String[2];
+			f[0] = listB.get(i).get_InterfaceName();
+			f[1] = Integer.toString(listB.get(i).hashCode());
+			nameList.add(f);
 		}
 		return nameList;
 	}

@@ -16,7 +16,7 @@ public class CacheMemory {
 	/* the below info is either in database either in cache memory */
 	private HashMap<String, ArrayList<String[]>> wiredMap;
 	private HashMap<String, ArrayList<String>> wiredMap2;
-	private HashMap<String, ArrayList<String>> wirelessMap;
+	private HashMap<String, ArrayList<String[]>> wirelessMap;
 	private HashMap<String, ArrayList<AccessPoint>> apMap;
 	private HashMap<String, Long> timeMap;
 	private ArrayList<String> devices;
@@ -29,7 +29,7 @@ public class CacheMemory {
 		System.out.println("Cache Memory has been just created!");
 		wiredMap = new HashMap<String, ArrayList<String[]>>();
 		wiredMap2 = new HashMap<String, ArrayList<String>>();
-		wirelessMap = new HashMap<String, ArrayList<String>>();
+		wirelessMap = new HashMap<String, ArrayList<String[]>>();
 		apMap = new HashMap<String, ArrayList<AccessPoint>>();
 		timeMap = new HashMap<String, Long>();
 		devices = new ArrayList<String>();
@@ -48,18 +48,19 @@ public class CacheMemory {
 		throw new CloneNotSupportedException();
 	}
 
-	public void update(String device, MonitorData md) {
-//		/* check if this device exists in db */
-//		if ( timeMap.containsKey(device) ) {
-//			// for listA
-//			for (int i = 0; i != md.getListA().size(); ++i) {
-//				wiredMap.containsValue(md.getListA().get(i).get_InterfaceName());
-//				// difereent from wireless
-//				md.getListA().get(i).get_InterfaceName().equals("adsf");
-//			}
-//		}
-//		
-		/* then update the οωεoverview */
+	public synchronized void update(String device, MonitorData md) {
+		/* check if this device's data exist in overiew (~ db or cache memory) */
+		if (timeMap.containsKey(device)) {
+			System.out.print(device + " is found!");
+			if (dataIsUpdated(device, md)) {
+				System.out.println(" and updated!");
+				timeMap.put(device, System.currentTimeMillis());
+				return;
+			}
+		}
+		System.out.println(device + " is NOT found and NOT updated!");
+		System.out.println("Memory: memory is going to be updated...");
+		/* otherwise update the οωεoverview */
 		wiredMap.put(device, md.getInterfNameList());
 		wiredMap2.put(device, md.getInterfNameList2());
 		wirelessMap.put(device, md.getWirInterfNameList());
@@ -69,32 +70,112 @@ public class CacheMemory {
 
 		/* hold the latest info in memory */
 		newData.put(device, md);
-		ArrayList<String[]> s = new ArrayList<String[]>();
-		if (timeMap.containsKey(device)) {
-			System.out.println("device: " + device + " is contained!");
-			s = wiredMap.get("green-tower");
-		} else {
-			System.out.println("malaka den tha koimitheis apopse...");
-		}
 
+
+//		System.out.println("apo eksw twra... " + wiredMap.get(device).size());
+//		if (timeMap.containsKey(device) && dataIsUpdated(device, md)) {
+//			System.out.println("Memory: memory contains all the info of: " + device);
+//			timeMap.put(device, System.currentTimeMillis());
+
+
+	}
+
+	public synchronized boolean hasLatestInfoOf(String device) {
+		return newData.containsKey("device");
+	}
+
+	public MonitorData getInfoOf(String device, String interf) {
+
+		return null;
+	}
+
+	private boolean dataIsUpdated(String device, MonitorData md) {
+		ArrayList<String[]> s = new ArrayList<String[]>();
 		String[] str = new String[2];
-		for (int i = 0; i != md.getListA().size(); ++i) {
-			for (int j = 0; j != s.size(); ++j) {
+		int mdSize = 0;
+		int overviewSize = 0;
+		int found = 0;
+
+//	/* --- checking for wired interfaces --- */
+
+		/* get the wired interface names for cache memory overvies */
+		s = wiredMap.get(device);
+
+		/* get the number of wired interfaces in monitor data */
+		mdSize = md.getListA().size();
+		/* get the number of wired interfaces which are cached */
+		overviewSize = s.size();
+
+		System.out.println("mdSize: " + mdSize + " overviewSize: " + overviewSize);
+		/* if these numbers are different, then for sure the data has been changed */
+		if (overviewSize != mdSize) {
+			System.out.println("false1");
+			return false;
+		}
+		found = 0;
+		System.out.println("I am going to print everything...");
+		for (int i = 0; i != mdSize; ++i) {
+			for (int j = 0; j != overviewSize; ++j) {
 				str[0] = md.getListA().get(i).get_InterfaceName();
 				str[1] = Integer.toString(md.getListA().get(i).hashCode());
+				
+				System.out.println("s string: " + s.get(j)[0]);
+				System.out.print(" md string: " + str[0]);
+				System.out.println("s hashcode: " + s.get(j)[1]);
+				System.out.print(" md hashcode: " + str[1]);
 				if (s.get(j)[0].equals(str[0]) && s.get(j)[1].equals(str[1])) {
 					System.out.println("found: " + s.get(j)[0]);
+					found++;
 					break;
 				}
 			}
 		}
+		/* even if overviewSize == mdSize, the unchanged interfaces may differ */
+		if (found != overviewSize) {
+			System.out.println("false2");
+			return false;
+		}
 		System.out.println("=");
 
-	}
 
-	public boolean hasLatestInfoOf(String device) {
-		return newData.containsKey("device");
+//	/* --- checking for the wireless interfaces --- */
+
+		/* get the wired interface names for cache memory overvies */
+		s = wirelessMap.get(device);
+
+		/* get the number of wired interfaces in monitor data */
+		mdSize = md.getListB().size();
+		/* get the number of wired interfaces which are cached */
+		overviewSize = s.size();
+
+		/* if these numbers are different, then for sure the data has been changed */
+		if (overviewSize != mdSize) {
+			System.out.println("false3");
+			return false;
+		}
+		found = 0;
+		for (int i = 0; i != mdSize; ++i) {
+			for (int j = 0; j != overviewSize; ++j) {
+				str[0] = md.getListB().get(i).get_InterfaceName();
+				str[1] = Integer.toString(md.getListB().get(i).hashCode());
+				if (s.get(j)[0].equals(str[0]) && s.get(j)[1].equals(str[1])) {
+					System.out.println("found: " + s.get(j)[0]);
+					found++;
+					break;
+				}
+			}
+		}
+		/* even if overviewSize == mdSize, the unchanged interfaces may differ */
+		if (found != overviewSize) {
+			System.out.println("false4");
+			return false;
+		}
+		System.out.println("=");
+
+
+		return true;
 	}
+	//TODO: TOSEE!
 
 	public synchronized void printMemory() {
 		Iterator it;
@@ -157,12 +238,5 @@ public class CacheMemory {
 			System.out.println(it.next());
 		}
 		System.out.println("--- data end ---");
-	}
-
-	public MonitorData getInfoOf(String device, String interf) {
-
-
-
-		return null;
 	}
 }

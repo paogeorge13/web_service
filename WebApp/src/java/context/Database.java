@@ -122,7 +122,7 @@ public class Database {
 
 			prepstmt.setString(1, tableName);
 			for (int i = 0; i != field.length; ++i) {
-				prepstmt.setString(i + 1, field[i]);
+				prepstmt.setString(i + 2, field[i]);
 			}
 			prepstmt.execute();
 			//stmt.close();
