@@ -80,23 +80,23 @@ public class Database {
 	public void createTables() {
 		PreparedStatement prepstmt = null;
 		String sql = "";
+		String type1 = "VARCHAR(255)";
+		String space = " "; 
 
 		try {
 			for (int i = 0; i != tables.length; ++i) {
 				/* prepare sql query */
-				sql = "CREATE TABLE ? ( ? VARCHAR(255)";
-				/* lenght - 2 because the first two questionmarks are ready */
-				for (int j = 0; j != tables[i].length-2; ++j) {
-					sql += ", ? VARCHAR(255)";
+				sql = "CREATE TABLE";  // ? ( ? VARCHAR(255)";
+				sql += space + tables[i][0] + space; 
+				sql += "(" + space + tables[i][1] + space + type1;
+				
+				for (int j = 2; j != tables[i].length; ++j) {
+					sql += "," + space + tables[i][j] + space + type1 + space;
 				}
+
 				sql += ")";
 
 				prepstmt = conn.prepareStatement(sql);
-
-				/* set values in the sql query */
-				for (int j = 0; j != tables[i].length; ++j) {
-					prepstmt.setString(j + 1, tables[i][j]);
-				}
 
 				System.out.println("Sql query for insertion: " + sql);
 
