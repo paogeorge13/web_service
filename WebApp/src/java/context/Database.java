@@ -180,14 +180,41 @@ public class Database {
         System.out.println("Goodbye!");
     }
 
-    // TODO this...
-    public void deleteADevice(String device) {
-        System.out.println("pirate proponiti");
-    }
+    /*public void deleteADevice(String dev) {
+        Statement stmt = null;
+        PreparedStatement prepstmt = null;
+        String query = "";
+        try {
+            System.out.println("Creating statement...");
+            stmt = conn.createStatement();
 
+            query = "DELETE FROM ? WHERE device = ? ";
+
+            prepstmt = conn.prepareStatement(query);
+
+            for (int i = 1; i != tables.length; i++) {
+                prepstmt.setString(1, tables[i][0]);
+                prepstmt.setString(2, dev);
+                prepstmt.execute();
+
+            }
+
+            stmt.executeUpdate(query);
+
+
+        } catch (SQLException se) {
+            //Handle errors for JDBC
+            se.printStackTrace();
+        } catch (Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        }
+
+    }*/
 //	UPDATE table_name
 //	SET column1 = value, column2 = value2,
 //	WHERE some_column = some_value
+
     public void updateADevice(String device, WiredInterface wi) {
         PreparedStatement prepstmt = null;
         String sql = "";
@@ -383,7 +410,8 @@ public class Database {
 
     public void insertADevice(String device, AccessPoint ac) {
         PreparedStatement prepstmt = null;
-        String sql = "";
+        String sql = "", sql1 = "";
+        ResultSet rs;
         try {
             /* prepare sql query */
             sql = "INSERT INTO pcAPs VALUES (?, ?, ?)";
@@ -394,6 +422,37 @@ public class Database {
             System.out.println("Sql query for insertion: " + sql);
             prepstmt.execute();
             prepstmt.close();
+
+            prepstmt = null;
+            sql = "";
+            sql = "SELECT aPMAC "
+                    + "FROM accessPoints "
+                    + "WHERE aPMAC = ?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, ac.get_APMAC());
+            prepstmt.execute();
+            rs = prepstmt.executeQuery();
+            if (!rs.next()) {
+                prepstmt = null;
+                sql1 = "INSERT INTO accessPoints VALUES (?, ?, ?, ?)";
+                prepstmt = conn.prepareStatement(sql1);
+                prepstmt.setString(1, ac.get_APMAC());
+                prepstmt.setString(2, ac.get_APESSID());
+                prepstmt.setString(3, ac.get_APChannel());
+                prepstmt.setString(4, ac.get_APMode());
+                prepstmt.execute();
+                prepstmt.close();
+            } else {
+                prepstmt = null;
+                sql1 = "UPDATE accessPoints SET aESSID = ?, aPChannel = ?, aPMode = ? WHERE device = ?";
+                prepstmt = conn.prepareStatement(sql1);
+                prepstmt.setString(1, ac.get_APESSID());
+                prepstmt.setString(1, ac.get_APChannel());
+                prepstmt.setString(1, ac.get_APMode());
+                prepstmt.setString(4, ac.get_APMAC());
+                prepstmt.execute();
+                prepstmt.close();
+            }
         } catch (SQLException se) {
             //Handle errors for JDBC
             se.printStackTrace();
@@ -483,7 +542,47 @@ public class Database {
                     .getName()).log(Level.SEVERE, null, ex);
         }
         return wl;
+    }
 
+    public AccessPoint getInfoOfAPs(String device, String mac) {
+        PreparedStatement prepstmt = null;
+        PreparedStatement prepstmt2 = null;
+        ResultSet rs, rs2;
+        AccessPoint ap = new AccessPoint();
+
+        try {
+            String sql = "SELECT aPMAC, aPESSID, aPChannel, aPMode"
+                    + "FROM accessPoints"
+                    + "WHERE aPMAC in (SELECT APMAC FROM pcAPs WHERE device = ? AND APMAC = ? )";
+
+            String query = "SELECT aPSignalLevel"
+                    + "FROM pcAPs"
+                    + "WHERE device = ?";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, device);
+            prepstmt.setString(2, mac);
+            prepstmt.execute();
+            rs = prepstmt.executeQuery();
+
+            prepstmt2 = conn.prepareStatement(query);
+            prepstmt2.setString(1, device);
+            prepstmt2.execute();
+            rs2 = prepstmt2.executeQuery();
+
+            while (rs.next()) {
+                ap.set_APMAC(rs.getString("aPMAC"));
+                ap.set_APESSID(rs.getString("aPESSID"));
+                ap.set_APChannel(rs.getString("aPChannel"));
+                ap.set_APMode(rs.getString("aPMode"));
+            }
+            ap.set_APSignalLevel(rs2.getString("aPSignalLevel"));
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+        return ap;
     }
 
     public void selectADevice(int idF) {
@@ -533,9 +632,5 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-    }
-
-    public void getInfoOf(String device, String interf) {
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 }
