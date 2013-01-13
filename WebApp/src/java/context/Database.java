@@ -141,7 +141,7 @@ public class Database {
         System.out.println("Goodbye!");
     }
 
- /*   public void deleteADevice(String dev) {
+    public void deleteADevice(String dev) {
         Statement stmt = null;
         PreparedStatement prepstmt = null;
         PreparedStatement prepstmt2 = null;
@@ -161,18 +161,22 @@ public class Database {
 //            prepstmt2.execute();
 //            rs = prepstmt2.executeQuery();
 
- //           prepstmt = conn.prepareStatement(query);
+            
 
             for (int i = 0; i != tables.length; i++) {
                 if (tables[i][0].equals("wiredInterfaces") || tables[i][0].equals("wirelessInterfaces") || tables[i][0].equals("pcAPs") || tables[i][0].equals("devices")) {
+                    query = "";
+                    prepstmt = null;
+                    query = "DELETE FROM ? WHERE device = ? ";
+                    prepstmt = conn.prepareStatement(query);
                     prepstmt.setString(1, tables[i][0]);
                     prepstmt.setString(2, dev);
                     prepstmt.execute();
-
+                    prepstmt.close();
                 }
             }
 
-            stmt.executeUpdate(query);
+        //    stmt.executeUpdate(query);
         } catch (SQLException se) {
             //Handle errors for JDBC
             se.printStackTrace();
@@ -181,7 +185,7 @@ public class Database {
             e.printStackTrace();
         }
 
-    }*/
+    }
 
     public void deleteDeviceWired(String device, String ifname) {
         PreparedStatement prepstmt = null;
@@ -212,7 +216,6 @@ public class Database {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 
     public void deleteDeviceAP(String device, String mac) {
         PreparedStatement prepstmt = null;
@@ -489,8 +492,8 @@ public class Database {
                 sql1 = "UPDATE accessPoints SET aESSID = ?, aPChannel = ?, aPMode = ? WHERE device = ?";
                 prepstmt = conn.prepareStatement(sql1);
                 prepstmt.setString(1, ac.get_APESSID());
-                prepstmt.setString(1, ac.get_APChannel());
-                prepstmt.setString(1, ac.get_APMode());
+                prepstmt.setString(2, ac.get_APChannel());
+                prepstmt.setString(3, ac.get_APMode());
                 prepstmt.setString(4, ac.get_APMAC());
                 prepstmt.execute();
                 prepstmt.close();
