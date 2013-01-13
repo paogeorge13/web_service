@@ -1,7 +1,11 @@
 
 public class Adder implements Runnable {
 
+    private Operations oper;
     private Data data;
+    private String device;
+    private String resultstring;
+    private String[] split;
     private adder.MonitorData md;
     private adder.WiredInterface[] w;
     private adder.WirelessInterface[] wl;
@@ -9,6 +13,7 @@ public class Adder implements Runnable {
 
     public Adder(Data data) {
         this.data = data;
+        oper = new Operations();
         md = new adder.MonitorData();
     }
 
@@ -60,7 +65,10 @@ public class Adder implements Runnable {
         }
 
         /* invoke web service */
-        setMonitorData("green-tower", md);
+        resultstring = oper.Scan("hostname");
+        split = resultstring.split("/n");
+        device = split[0];
+        setMonitorData(device, md);
         System.out.println("I sent the data");
 //		}
     }
