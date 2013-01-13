@@ -141,67 +141,38 @@ public class Database {
         System.out.println("Goodbye!");
     }
 
-    public void createTable(String tableName, String columns) {
-        PreparedStatement prepstmt = null;
-        String sql = "";
-        ResultSet rs;
-        String[] field;
-
-        try {
-            /* prepare sql query */
-            sql = "INSERT INTO wiredInterfaces VALUES (?";
-            field = columns.split(" ");
-            /* lenght - 1: because the first questionmark is already printed */
-            for (int i = 0; i != (field.length - 1); ++i) {
-                sql += ", ?";
-            }
-            sql += ")";
-
-            prepstmt = conn.prepareStatement(sql);
-
-            System.out.println("Sql query for insertion: " + sql);
-
-            prepstmt.setString(1, tableName);
-            for (int i = 0; i != field.length; ++i) {
-                prepstmt.setString(i + 2, field[i]);
-            }
-            prepstmt.execute();
-            //stmt.close();
-            prepstmt.close();
-        } catch (SQLException se) {
-            //Handle errors for JDBC
-            se.printStackTrace();
-        } catch (Exception e) {
-            //Handle errors for Class.forName
-            e.printStackTrace();
-        } finally {
-            System.out.println("finally here...");
-        }
-        System.out.println("Goodbye!");
-    }
-
-    /*public void deleteADevice(String dev) {
+ /*   public void deleteADevice(String dev) {
         Statement stmt = null;
         PreparedStatement prepstmt = null;
+        PreparedStatement prepstmt2 = null;
+        String sql = "";
         String query = "";
+        ResultSet rs;
+
         try {
             System.out.println("Creating statement...");
             stmt = conn.createStatement();
 
+//            sql = "SELECT APMAC FROM pcAPs WHERE device = ? GROUP BY APMAC";
             query = "DELETE FROM ? WHERE device = ? ";
 
-            prepstmt = conn.prepareStatement(query);
+//            prepstmt2 = conn.prepareStatement(sql);
+//            prepstmt2.setString(1, dev);
+//            prepstmt2.execute();
+//            rs = prepstmt2.executeQuery();
 
-            for (int i = 1; i != tables.length; i++) {
-                prepstmt.setString(1, tables[i][0]);
-                prepstmt.setString(2, dev);
-                prepstmt.execute();
+ //           prepstmt = conn.prepareStatement(query);
 
+            for (int i = 0; i != tables.length; i++) {
+                if (tables[i][0].equals("wiredInterfaces") || tables[i][0].equals("wirelessInterfaces") || tables[i][0].equals("pcAPs") || tables[i][0].equals("devices")) {
+                    prepstmt.setString(1, tables[i][0]);
+                    prepstmt.setString(2, dev);
+                    prepstmt.execute();
+
+                }
             }
 
             stmt.executeUpdate(query);
-
-
         } catch (SQLException se) {
             //Handle errors for JDBC
             se.printStackTrace();
@@ -211,9 +182,82 @@ public class Database {
         }
 
     }*/
-//	UPDATE table_name
-//	SET column1 = value, column2 = value2,
-//	WHERE some_column = some_value
+
+    public void deleteDeviceWired(String device, String ifname) {
+        PreparedStatement prepstmt = null;
+        String sql = "";
+        try {
+            sql = "DELETE FROM wiredInterfaces WHERE device = ? AND interfaceName = ?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, device);
+            prepstmt.setString(2, ifname);
+            prepstmt.execute();
+            prepstmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void deleteDeviceWireless(String device, String ifname) {
+        PreparedStatement prepstmt = null;
+        String sql = "";
+        try {
+            sql = "DELETE FROM wirelessInterfaces WHERE device = ? AND interfaceName = ?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, device);
+            prepstmt.setString(2, ifname);
+            prepstmt.execute();
+            prepstmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+
+    public void deleteDeviceAP(String device, String mac) {
+        PreparedStatement prepstmt = null;
+        String sql = "";
+        ResultSet rs;
+        int count;
+        try {
+            sql = "SELECT COUNT(*) FROM pcAPs WHERE APMAC = ?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, mac);
+            prepstmt.execute();
+            rs = prepstmt.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt("COUNT(*)") == 1) {
+                    PreparedStatement prepstmt1 = null;
+                    String sql1 = "";
+                    try {
+                        sql1 = "DELETE FROM accessPoints WHERE aPMAC = ?";
+                        prepstmt1 = conn.prepareStatement(sql1);
+                        prepstmt1.setString(1, mac);
+                        prepstmt1.execute();
+                        prepstmt1.close();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+            prepstmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        prepstmt = null;
+        sql = "";
+        try {
+            sql = "DELETE FROM pcAPs WHERE device = ? AND APMAC = ?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, device);
+            prepstmt.setString(2, mac);
+            prepstmt.execute();
+            prepstmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public void updateADevice(String device, WiredInterface wi) {
         PreparedStatement prepstmt = null;
@@ -321,8 +365,6 @@ public class Database {
         System.out.println("Goodbye!");
 
     }
-//	INSERT INTO table_name
-//	VALUES (value1, value2, value3,...)
 
     public void insertADevice(String device, WiredInterface wi) {
         PreparedStatement prepstmt = null;
@@ -480,12 +522,12 @@ public class Database {
             prepstmt.setString(2, ifName);
             prepstmt.execute();
             rs = prepstmt.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 w.set_InterfaceMAC(rs.getString("interfaceMAC"));
-                w.set_InterfaceIP(rs.getNString("interfaceIP"));
-                w.set_InterfaceMask(rs.getNString("interfaceMask"));
-                w.set_NetworkAddress(rs.getNString("networkAddress"));
-                w.set_Bcast(rs.getNString("bcast"));
+                w.set_InterfaceIP(rs.getString("interfaceIP"));
+                w.set_InterfaceMask(rs.getString("interfaceMask"));
+                w.set_NetworkAddress(rs.getString("networkAddress"));
+                w.set_Bcast(rs.getString("bcast"));
                 w.set_DefaultGetway(rs.getString("defaultGetway"));
                 w.set_MaxTransfer(rs.getString("maxTransfer"));
                 w.set_CurrentTransfer(rs.getString("currentTransfer"));
@@ -516,12 +558,12 @@ public class Database {
             prepstmt.setString(2, ifName);
             prepstmt.execute();
             rs = prepstmt.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 wl.set_InterfaceMAC(rs.getString("interfaceMAC"));
-                wl.set_InterfaceIP(rs.getNString("interfaceIP"));
-                wl.set_InterfaceMask(rs.getNString("interfaceMask"));
-                wl.set_NetworkAddress(rs.getNString("networkAddress"));
-                wl.set_Bcast(rs.getNString("bcast"));
+                wl.set_InterfaceIP(rs.getString("interfaceIP"));
+                wl.set_InterfaceMask(rs.getString("interfaceMask"));
+                wl.set_NetworkAddress(rs.getString("networkAddress"));
+                wl.set_Bcast(rs.getString("bcast"));
                 wl.set_DefaultGetway(rs.getString("defaultGetway"));
                 wl.set_MaxTransfer(rs.getString("maxTransfer"));
                 wl.set_CurrentTransfer(rs.getString("currentTransfer"));
@@ -557,7 +599,7 @@ public class Database {
 
             String query = "SELECT aPSignalLevel"
                     + "FROM pcAPs"
-                    + "WHERE device = ?";
+                    + "WHERE device = ? AND APMAC = ?";
 
             prepstmt = conn.prepareStatement(sql);
             prepstmt.setString(1, device);
@@ -567,16 +609,19 @@ public class Database {
 
             prepstmt2 = conn.prepareStatement(query);
             prepstmt2.setString(1, device);
+            prepstmt2.setString(2, mac);
             prepstmt2.execute();
             rs2 = prepstmt2.executeQuery();
 
-            while (rs.next()) {
+            if (rs.next()) {
                 ap.set_APMAC(rs.getString("aPMAC"));
                 ap.set_APESSID(rs.getString("aPESSID"));
                 ap.set_APChannel(rs.getString("aPChannel"));
                 ap.set_APMode(rs.getString("aPMode"));
             }
-            ap.set_APSignalLevel(rs2.getString("aPSignalLevel"));
+            if (rs2.next()) {
+                ap.set_APSignalLevel(rs2.getString("aPSignalLevel"));
+            }
 
         } catch (SQLException ex) {
             Logger.getLogger(Database.class
