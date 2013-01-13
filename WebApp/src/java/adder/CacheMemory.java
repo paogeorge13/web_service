@@ -4,6 +4,7 @@ import context.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /* 
  * singleton cache memory - maybe only -memory- (without cache)
@@ -21,19 +22,30 @@ public class CacheMemory {
 	private HashMap<String, Long> timeMap;
 	private ArrayList<String> devices;
 
+	/* hash maps with interfaces that are going to be deleted */
+	private ArrayList<String[]> delWIf;
+	private ArrayList<String[]> delWirIf;
+	private ArrayList<String[]> delAp;
+
 	/* the below info exists only in cache memory */
 	private HashMap<String, MonitorData> newData;
 	private HashMap<String, MonitorData> cachedData;
 
 	public CacheMemory() {
-		System.out.println("Cache Memory has been just created!");
 		wiredMap = new HashMap<String, ArrayList<String[]>>();
 		wiredMap2 = new HashMap<String, ArrayList<String>>();
 		wirelessMap = new HashMap<String, ArrayList<String[]>>();
 		apMap = new HashMap<String, ArrayList<AccessPoint>>();
 		timeMap = new HashMap<String, Long>();
 		devices = new ArrayList<String>();
+
+		delAp = new ArrayList<String[]>();
+		delWIf = new ArrayList<String[]>();
+		delWirIf = new ArrayList<String[]>();
+
 		newData = new HashMap<String, MonitorData>();
+
+		System.out.println("Cache Memory has been just created!");
 	}
 
 	public static synchronized CacheMemory getInstance() {
@@ -49,28 +61,40 @@ public class CacheMemory {
 	}
 
 	public synchronized void update(String device, MonitorData md) {
+		ArrayList<String[]> param1 = new ArrayList<String[]>();
+		ArrayList<String[]> param2 = new ArrayList<String[]>();
+		ArrayList<String[]> param3 = new ArrayList<String[]>();
+		ArrayList<String[]> param4 = new ArrayList<String[]>();
+
+		param1 = param2 = param3 = param4 = null;
 		/* check if this device's data exist in overiew (~ db or cache memory) */
 		if (timeMap.containsKey(device)) {
+			/* if device exists in overview then pass as a parameter
+			 * the previous about the interfaces of it. 
+			 * the previous info that we αρare interested in, is the database insertion byte - String[3]ε
+			 */
+			param1 = wiredMap.get(device);
+			param2 = wirelessMap.get(device);
 			System.out.print(device + " is found!");
 			if (dataIsUpdated(device, md)) {
 				System.out.println(" and updated!");
 				timeMap.put(device, System.currentTimeMillis());
 				return;
 			}
+//			checkForDeletedIf(md);
 		}
 		System.out.println(device + " is NOT found and NOT updated!");
 		System.out.println("Memory: memory is going to be updated...");
 		/* otherwise update the οωεoverview */
-		wiredMap.put(device, md.getInterfNameList());
+		wiredMap.put(device, md.getInterfNameList(param1));
 		wiredMap2.put(device, md.getInterfNameList2());
-		wirelessMap.put(device, md.getWirInterfNameList());
+		wirelessMap.put(device, md.getWirInterfNameList(param2));
 		apMap.put(device, md.getListC());
 		timeMap.put(device, System.currentTimeMillis());
 		/* TODO: check list with devices */
 
 		/* hold the latest info in memory */
 		newData.put(device, md);
-
 
 //		System.out.println("apo eksw twra... " + wiredMap.get(device).size());
 //		if (timeMap.containsKey(device) && dataIsUpdated(device, md)) {
@@ -85,19 +109,19 @@ public class CacheMemory {
 	}
 
 	public MonitorData getInfoOf(String device, String interf) {
-
 		return null;
 	}
 
+	/* this is a fast check */
 	private boolean dataIsUpdated(String device, MonitorData md) {
 		ArrayList<String[]> s = new ArrayList<String[]>();
 		String[] str = new String[2];
 		int mdSize = 0;
 		int overviewSize = 0;
 		int found = 0;
+		boolean updated = true;
 
 //	/* --- checking for wired interfaces --- */
-
 		/* get the wired interface names for cache memory overvies */
 		s = wiredMap.get(device);
 
@@ -110,15 +134,16 @@ public class CacheMemory {
 		/* if these numbers are different, then for sure the data has been changed */
 		if (overviewSize != mdSize) {
 			System.out.println("false1");
-			return false;
+			updated = false;
 		}
 		found = 0;
 		System.out.println("I am going to print everything...");
-		for (int i = 0; i != mdSize; ++i) {
-			for (int j = 0; j != overviewSize; ++j) {
+		int i, j;
+		for (j = 0; j != overviewSize; ++j) {
+			for (i = 0; i != mdSize; ++i) {
 				str[0] = md.getListA().get(i).get_InterfaceName();
 				str[1] = Integer.toString(md.getListA().get(i).hashCode());
-				
+
 				System.out.println("s string: " + s.get(j)[0]);
 				System.out.print(" md string: " + str[0]);
 				System.out.println("s hashcode: " + s.get(j)[1]);
@@ -129,11 +154,21 @@ public class CacheMemory {
 					break;
 				}
 			}
+			/* if didn't execute break statement
+			 * if an interface in overview, didn't found in monitor data
+			 * this interface has to be deleted
+			 */
+			if (i == mdSize) {
+				String[] del = new String[2];
+				del[0] = device;
+				del[1] = s.get(j)[0];
+				delWIf.add(del);
+			}
 		}
 		/* even if overviewSize == mdSize, the unchanged interfaces may differ */
-		if (found != overviewSize) {
+		if (found != mdSize) {
 			System.out.println("false2");
-			return false;
+			updated = false;
 		}
 		System.out.println("=");
 
@@ -151,11 +186,11 @@ public class CacheMemory {
 		/* if these numbers are different, then for sure the data has been changed */
 		if (overviewSize != mdSize) {
 			System.out.println("false3");
-			return false;
+			updated = false;
 		}
 		found = 0;
-		for (int i = 0; i != mdSize; ++i) {
-			for (int j = 0; j != overviewSize; ++j) {
+		for (i = 0; i != mdSize; ++i) {
+			for (j = 0; j != overviewSize; ++j) {
 				str[0] = md.getListB().get(i).get_InterfaceName();
 				str[1] = Integer.toString(md.getListB().get(i).hashCode());
 				if (s.get(j)[0].equals(str[0]) && s.get(j)[1].equals(str[1])) {
@@ -166,14 +201,13 @@ public class CacheMemory {
 			}
 		}
 		/* even if overviewSize == mdSize, the unchanged interfaces may differ */
-		if (found != overviewSize) {
+		if (found != mdSize) {
 			System.out.println("false4");
-			return false;
+			updated = false;
 		}
 		System.out.println("=");
 
-
-		return true;
+		return updated;
 	}
 	//TODO: TOSEE!
 
@@ -238,5 +272,121 @@ public class CacheMemory {
 			System.out.println(it.next());
 		}
 		System.out.println("--- data end ---");
+	}
+
+	/* check the hashCode for EVERY interface */
+	public synchronized void updateDb() {
+		ArrayList<String[]> overview;
+	
+		/* firstly, delete from database every interface that does not exist anymore */
+		deleteInterfaces();
+
+		/* for every monitor data that has reached the memory */
+		for (Map.Entry<String, MonitorData> entry : newData.entrySet()) {
+			MonitorData md = entry.getValue();
+			String device = entry.getKey();
+			int sizeA, sizeB, sizeC;
+			int sizeMapA, sizeMapB, sizeMapC;
+
+			System.out.println("I am going to update the database for device: " + device);
+
+//		--- wired interfaces
+			sizeA = md.getListA().size();
+			/* get a list of the interfaces of the device - overview */
+			overview = wiredMap.get(device);
+			sizeMapA = overview.size();
+
+			System.out.println("s.size: " + overview.size() + " md.size: " + md.getListA().size());
+			/* for every wired interface in monitor data */
+			int i, j;
+			for (i = 0; i != sizeA; ++i) {
+				/* check it with the overview */
+				for (j = 0; j != sizeMapA; ++j) {
+					/* for the same interface */
+					if (md.getListA().get(i).get_InterfaceName().equals(overview.get(j)[0])) {
+						/* check if the interface of the overview, is already in databe */
+						if (overview.get(j)[2].equals("1")) {
+							/* if they have the same hash code */
+							if (overview.get(j)[1].equals(Integer.toString(md.getListA().get(i).hashCode()))) {
+								// do nothing
+							} else {
+								/* else update */
+								db.updateADevice(device, md.getListA().get(i));
+							}
+						} /* otherwise */ else {
+							/* insert in database */
+							db.insertADevice(device, md.getListA().get(i));
+						}
+						break;
+					}
+				}
+				/* if "break;" was executed
+				 * if there is an interface that there is not in overview
+				 * insert it!
+				 */
+				if (j == sizeMapA) {
+					System.out.println("kanonika den prepei na mpei edw pote...");
+				}
+			}
+
+		
+//		--- wireless interfaces
+			sizeB = md.getListB().size();
+			/* get a list of the interfaces of the device - overview */
+			overview = wirelessMap.get(device);
+			sizeMapB = overview.size();
+
+			System.out.println("s.size: " + overview.size() + " md.size: " + md.getListB().size());
+			/* for every wired interface in monitor data */
+			for (i = 0; i != sizeB; ++i) {
+				/* check it with the overview */
+				for (j = 0; j != sizeMapB; ++j) {
+					/* for the same interface */
+					if (md.getListB().get(i).get_InterfaceName().equals(overview.get(j)[0])) {
+						/* check if the interface of the overview, is already in databe */
+						if (overview.get(j)[2].equals("1")) {
+							/* if they have the same hash code */
+							if (overview.get(j)[1].equals(Integer.toString(md.getListB().get(i).hashCode()))) {
+								// do nothing
+							} else {
+								/* else update */
+								db.updateADevice(device, md.getListB().get(i));
+							}
+						} /* otherwise */ else {
+							/* insert in database */
+							db.insertADevice(device, md.getListB().get(i));
+						}
+						break;
+					}
+				}
+				/* if "break;" was executed
+				 * if there is an interface that there is not in overview
+				 * insert it!
+				 */
+				if (j == sizeMapB) {
+					System.out.println("kanonika den prepei na mpei edw pote...");
+				}
+			}
+		}
+
+		setUpdatedDb();
+	}
+
+	private void setUpdatedDb() {
+//		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	private void deleteInterfaces() {
+
+		/* delete wired interfaces */
+		for (int i = 0; i != delWIf.size(); ++i ) {
+//			db.deleteWiredIf(delWIf.get(i)[0], delWIf.get(i)[1]);
+		}
+
+		/* delete wireless interfaces */
+		for (int i = 0; i != delWirIf.size(); ++i ) {
+//			db.deleteWirelessIf(delWirIf.get(i)[0], delWirIf.get(i)[1]);
+		}
+
 	}
 }
