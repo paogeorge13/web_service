@@ -2,6 +2,8 @@ import interfaces.WirelessInterface;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Monitor implements Runnable {
@@ -409,10 +411,21 @@ public class Monitor implements Runnable {
 						e.printStackTrace();
 					}
 				}
+
+				/* stop the adder */
+				adder.interrupt();
+				try {
+					System.out.println("I stopped the adder....");
+					adder.join();
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+					Logger.getLogger(Monitor.class.getName()).log(Level.SEVERE, null, ex);
+				}
 				
 				/* also stop the wireless environment scanner thread */
 				tScanner.interrupt();
 				try {
+					System.out.println("I stopped the tScanner....");
 					tScanner.join();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
