@@ -151,11 +151,10 @@ public class Database {
         String space = " ";
 
         try {
-            sql = "SELECT APMAC FROM pcAPs WHERE device = " + '"' + dev + '"';
+ /*           sql = "SELECT APMAC FROM pcAPs WHERE device = " + '"' + dev + '"';
             prepstmt1 = conn.prepareStatement(sql);
             prepstmt1.execute();
             rs = prepstmt1.executeQuery();
-            prepstmt1.close();
             while (rs.next()) {
                 sql = "SELECT COUNT(APMAC) FROM pcAPs WHERE APMAC = ?";
                 prepstmt = conn.prepareStatement(sql);
@@ -179,6 +178,7 @@ public class Database {
                     }
                 }
             }
+            prepstmt1.close();*/
             for (int i = 0; i != tables.length; i++) {
                 if (tables[i][0].equals("wiredInterfaces") || tables[i][0].equals("wirelessInterfaces") || tables[i][0].equals("pcAPs") || tables[i][0].equals("devices")) {
                     query = "";
@@ -606,21 +606,19 @@ public class Database {
         AccessPoint ap = new AccessPoint();
 
         try {
-            String sql = "SELECT aPMAC, aPESSID, aPChannel, aPMode"
-                    + "FROM accessPoints"
-                    + "WHERE aPMAC in (SELECT APMAC FROM pcAPs WHERE device = " + '"' + device + '"' + " AND APMAC = " + '"' + mac + '"' + " )";
+            String sql = "SELECT aPMAC, aPESSID, aPChannel, aPMode "
+                    + "FROM accessPoints "
+                    + "WHERE aPMAC IN (SELECT APMAC FROM pcAPs WHERE device = " + '"' + device + '"' + " AND APMAC = " + '"' + mac + '"' + " )";
 
-            String query = "SELECT aPSignalLevel"
-                    + "FROM pcAPs"
+            String query = "SELECT aPSignalLevel "
+                    + "FROM pcAPs "
                     + "WHERE device = " + '"' + device + '"' + " AND APMAC = " + '"' + mac + '"';
+
+            System.out.println(sql + " " + query);
 
             prepstmt = conn.prepareStatement(sql);
             prepstmt.execute();
             rs = prepstmt.executeQuery();
-
-            prepstmt2 = conn.prepareStatement(query);
-            prepstmt2.execute();
-            rs2 = prepstmt2.executeQuery();
 
             if (rs.next()) {
                 ap.set_APMAC(rs.getString("aPMAC"));
@@ -628,6 +626,12 @@ public class Database {
                 ap.set_APChannel(rs.getString("aPChannel"));
                 ap.set_APMode(rs.getString("aPMode"));
             }
+
+            prepstmt2 = conn.prepareStatement(query);
+            prepstmt2.execute();
+            rs2 = prepstmt2.executeQuery();
+
+
             if (rs2.next()) {
                 ap.set_APSignalLevel(rs2.getString("aPSignalLevel"));
             }
