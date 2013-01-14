@@ -1,7 +1,6 @@
 import interfaces.WiredInterface;
 import interfaces.AccessPoint;
 import interfaces.WirelessInterface;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.lang.Math;
 
@@ -11,7 +10,7 @@ import java.lang.Math;
  * listC: all available Access Points
  */
 
-public class Data implements Serializable {
+public class Data {
 
 	private static Data instance = null;
 	
@@ -19,7 +18,7 @@ public class Data implements Serializable {
 	private ArrayList<WirelessInterface> ListB;
 	private ArrayList<AccessPoint> ListC;
 	private long startTime;
-	public boolean sys1 = false;
+	public boolean sys1 = true;
 	
 	private Data() {
 		ListA = new ArrayList<WiredInterface>();
