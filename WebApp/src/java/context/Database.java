@@ -151,7 +151,7 @@ public class Database {
         String space = " ";
 
         try {
- /*           sql = "SELECT APMAC FROM pcAPs WHERE device = " + '"' + dev + '"';
+            sql = "SELECT APMAC FROM pcAPs WHERE device = " + '"' + dev + '"';
             prepstmt1 = conn.prepareStatement(sql);
             prepstmt1.execute();
             rs = prepstmt1.executeQuery();
@@ -178,7 +178,6 @@ public class Database {
                     }
                 }
             }
-            prepstmt1.close();*/
             for (int i = 0; i != tables.length; i++) {
                 if (tables[i][0].equals("wiredInterfaces") || tables[i][0].equals("wirelessInterfaces") || tables[i][0].equals("pcAPs") || tables[i][0].equals("devices")) {
                     query = "";
@@ -260,6 +259,7 @@ public class Database {
                 }
             }
             prepstmt.close();
+            rs.close();
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -514,6 +514,7 @@ public class Database {
                 prepstmt.execute();
                 prepstmt.close();
             }
+            rs.close();
         } catch (SQLException se) {
             //Handle errors for JDBC
             se.printStackTrace();
@@ -551,6 +552,7 @@ public class Database {
                 w.set_ConsumedRate(rs.getString("consumedRate"));
                 w.set_PacketError(rs.getString("packetError"));
             }
+            rs.close();
         } catch (SQLException ex) {
             Logger.getLogger(Database.class
                     .getName()).log(Level.SEVERE, null, ex);
@@ -592,6 +594,7 @@ public class Database {
                 wl.set_NoisePower(rs.getString("noisePower"));
                 wl.set_DiscardedPackets(rs.getString("discardedPackets"));
             }
+            rs.close();
         } catch (SQLException ex) {
             Logger.getLogger(Database.class
                     .getName()).log(Level.SEVERE, null, ex);
@@ -626,6 +629,7 @@ public class Database {
                 ap.set_APChannel(rs.getString("aPChannel"));
                 ap.set_APMode(rs.getString("aPMode"));
             }
+            rs.close();
 
             prepstmt2 = conn.prepareStatement(query);
             prepstmt2.execute();
@@ -635,6 +639,7 @@ public class Database {
             if (rs2.next()) {
                 ap.set_APSignalLevel(rs2.getString("aPSignalLevel"));
             }
+            rs2.close();
 
         } catch (SQLException ex) {
             Logger.getLogger(Database.class
