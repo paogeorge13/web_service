@@ -130,6 +130,41 @@ public class MonitorData {
 		}
 		return nameList;
 	}
+
+
+	
+	public ArrayList<String[]> getAPNameList(ArrayList<String[]> previous) {
+		ArrayList<String[]> nameList = new ArrayList<String[]>();
+
+		for (int i = 0; i != listC.size(); ++i) {
+			String[] f = new String[4];
+			f[0] = listC.get(i).get_APMAC();
+			f[1] = Integer.toString(listC.get(i).hashCode());
+			f[3] = listC.get(i).get_APESSID();
+			/* check if this interface is already in overview */
+			if (previous != null) {
+				f[2] = Integer.toString(0);
+				/* if previous contains exactly the same interface and hashCode, 
+				 * then keep the previous info about db insertion
+				 * -> String[3] (0 or 1)
+				 */
+//				if (previous.contains(f)) {
+				if (isContained(previous, f)) {
+					nameList.add(f);
+					continue;
+				}
+				f[2] = Integer.toString(1);
+//				if (previous.contains(f)) {
+				if (isContained(previous, f)) {
+					nameList.add(f);
+					continue;
+				}
+			}
+			f[2] = Integer.toString(0);
+			nameList.add(f);
+		}
+		return nameList;
+	}
 	/*
 	 public ArrayList<String> getAPNameList(ArrayList<AccessPoint> list) {
 	 ArrayList<String> nameList = new ArrayList<String>();
