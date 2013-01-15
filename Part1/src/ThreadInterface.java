@@ -214,8 +214,10 @@ public class ThreadInterface implements Runnable {
 		long time3 = System.currentTimeMillis();
 		String[] ExecString5 = {"/bin/sh", "-c", "cat /proc/net/dev | grep " + node.get_InterfaceName() + " |  awk '{print $12}'"};
 		String errors2 = operations.Scan(ExecString5);
-		int errors3 = Integer.parseInt(errors);
-		int errors4 = Integer.parseInt(errors2);
+//		int errors3 = Integer.parseInt(errors);
+//		int errors4 = Integer.parseInt(errors2);
+		int errors3 = 0;
+		int errors4 = 0;
 		long packetErr = (errors4-errors3)/(time3-time1);
 		String packetErr2 = Integer.toString((int) packetErr);
 		node.set_PacketError(packetErr2);
