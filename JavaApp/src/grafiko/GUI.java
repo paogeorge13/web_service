@@ -1,5 +1,6 @@
 package grafiko;
 
+import adder.CacheMemory;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 
-public class GUI extends JFrame {
+public class GUI extends JFrame implements Runnable {
 
 	private static GUI instance = null;
 	private static JButton quitButton;
@@ -18,19 +19,25 @@ public class GUI extends JFrame {
 	private PcTab jp1;
 	private MobileTab jp2;
 	private JComboBox deviceBox;
+	private CacheMemory mem;
 
-	/* Create main window*/
-	public GUI() {
-		/* Create frame with name App*/
-		super("Network Radar");
+	public GUI(CacheMemory mem) {
 		/* Define frame size*/
+		super("Network Radar");
+
+		this.mem = mem;
+		/* Create frame with name App*/
 		this.setSize(1138, 575);
+
 		/* Terminates when user pushes the X button*/
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		/* No resizeable*/
 		this.setResizable(false);
+
 		/* Change background color*/
 		getContentPane().setBackground(Color.BLACK);
+
 		// Titlebar icon.Specify the correct url path	
 		Image icon = Toolkit.getDefaultToolkit().getImage("images/radar.jpg");
 		setIconImage(icon);
@@ -102,18 +109,25 @@ public class GUI extends JFrame {
 	}
 
 	/* Add pc and mobile tab*/
-	public void addTabs() {
+		public void addTabs() {
 		jtp = new JTabbedPane();
 		getContentPane().add(jtp);
-		jp1 = new PcTab();
+		jp1 = new PcTab(mem);
 		jp1.customizePCTab();
 		jtp.addTab("PC/Laptops", jp1);
 		jp2 = new MobileTab();
 		jtp.addTab("Mobiles", jp2);
 	}
-}
 
+	@Override
+	public void run() {
+		addMenu();
+		addTabs();
+		setVisible(true);
+	}
+}
 /* TODO dokimastiko*/
+
 class Device {
 
 	private String name;

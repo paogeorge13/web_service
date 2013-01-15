@@ -16,6 +16,10 @@ public class CacheMemory {
 	private static CacheMemory instance = null;
 	private Database db = Database.getInstance();
 
+	public HashMap<String, ArrayList<String[]>> getWiredMap() {
+		return wiredMap;
+	}
+
 	/* the below info is either in database either in cache memory */
 	private HashMap<String, ArrayList<String[]>> wiredMap;
 	private HashMap<String, ArrayList<String>> wiredMap2;
@@ -48,18 +52,18 @@ public class CacheMemory {
 		newData = new HashMap<String, MonitorData>();
 
 		System.out.println("Cache Memory has been just created!-----------------------------");
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				GUI gui = new GUI();
-				gui.addMenu();
-				/* Add tabs*/
-				gui.addTabs();
-				/* Make window visible*/
-				gui.setVisible(true);
-			}
-		});
+//
+//		SwingUtilities.invokeLater(new Runnable() {
+//			@Override
+//			public void run() {
+//				GUI gui = new GUI();
+//				gui.addMenu();
+//				/* Add tabs*/
+//				gui.addTabs();
+//				/* Make window visible*/
+//				gui.setVisible(true);
+//			}
+//		});
 
 	}
 
@@ -154,7 +158,9 @@ public class CacheMemory {
 		found = 0;
 		System.out.println("I am going to print everything...");
 		int i, j;
+		/* for every interface in overview */
 		for (j = 0; j != overviewSize; ++j) {
+			/* check every interface in monitor data */
 			for (i = 0; i != mdSize; ++i) {
 				str[0] = md.getListA().get(i).get_InterfaceName();
 				str[1] = Integer.toString(md.getListA().get(i).hashCode());
@@ -163,6 +169,7 @@ public class CacheMemory {
 				System.out.print(" md string: " + str[0]);
 				System.out.println("s hashcode: " + s.get(j)[1]);
 				System.out.print(" md hashcode: " + str[1]);
+				/* if they have the same name and hash code */
 				if (s.get(j)[0].equals(str[0]) && s.get(j)[1].equals(str[1])) {
 					System.out.println("found: " + s.get(j)[0]);
 					found++;
@@ -170,7 +177,7 @@ public class CacheMemory {
 				}
 			}
 			/* if didn't execute break statement
-			 * if an interface in overview, didn't found in monitor data
+			 * if an interface in overview wasn't found in monitor data
 			 * this interface has to be deleted
 			 */
 			if (i == mdSize) {
@@ -185,7 +192,6 @@ public class CacheMemory {
 			System.out.println("false2");
 			updated = false;
 		}
-		System.out.println("=");
 
 
 //	/* --- checking for the wireless interfaces --- */
@@ -204,8 +210,10 @@ public class CacheMemory {
 			updated = false;
 		}
 		found = 0;
-		for (i = 0; i != mdSize; ++i) {
-			for (j = 0; j != overviewSize; ++j) {
+		/* for every interface in overview */
+		for (j = 0; j != overviewSize; ++j) {
+			/* check every interface in monitor data */
+			for (i = 0; i != mdSize; ++i) {
 				str[0] = md.getListB().get(i).get_InterfaceName();
 				str[1] = Integer.toString(md.getListB().get(i).hashCode());
 				if (s.get(j)[0].equals(str[0]) && s.get(j)[1].equals(str[1])) {
@@ -214,17 +222,175 @@ public class CacheMemory {
 					break;
 				}
 			}
+			/* if didn't execute break statement
+			 * if an interface in overview wasn't found in monitor data
+			 * this interface has to be deleted
+			 */
+			if (i == mdSize) {
+				String[] del = new String[2];
+				del[0] = device;
+				del[1] = s.get(j)[0];
+				delWirIf.add(del);
+			}
 		}
 		/* even if overviewSize == mdSize, the unchanged interfaces may differ */
 		if (found != mdSize) {
 			System.out.println("false4");
 			updated = false;
 		}
-		System.out.println("=");
 
 		return updated;
 	}
-	//TODO: TOSEE!
+
+	/* check the hashCode for EVERY interface */
+	public synchronized void updateDb() {
+		ArrayList<String[]> overview;
+
+		/* firstly, delete from database every interface that does not exist anymore */
+		deleteInterfaces();
+
+		/* for every monitor data that has reached the memory */
+		for (Map.Entry<String, MonitorData> entry : newData.entrySet()) {
+			MonitorData md = entry.getValue();
+			String device = entry.getKey();
+			int sizeA, sizeB, sizeC;
+			int sizeMapA, sizeMapB, sizeMapC;
+
+			System.out.println("I am going to update the database for device: " + device);
+
+//		--- wired interfaces
+			sizeA = md.getListA().size();
+			/* get a list of the interfaces of the device - overview */
+			overview = wiredMap.get(device);
+			sizeMapA = overview.size();
+
+			System.out.println("s.size: " + overview.size() + " md.size: " + md.getListA().size());
+			/* for every wired interface in monitor data */
+			int i, j;
+			for (i = 0; i != sizeA; ++i) {
+				/* check it with the overview */
+				for (j = 0; j != sizeMapA; ++j) {
+					/* for the same interface */
+					if (md.getListA().get(i).get_InterfaceName().equals(overview.get(j)[0])) {
+						/* check if the interface of the overview, is already in databe */
+						if (overview.get(j)[2].equals("1")) {
+							System.out.println(overview.get(j)[0] + " is already in database.");
+							/* if they have the same hash code */
+							if (overview.get(j)[1].equals(Integer.toString(md.getListA().get(i).hashCode()))) {
+								// do nothing
+							} else {
+								/* else update */
+								db.updateADevice(device, md.getListA().get(i));
+							}
+						} /* otherwise */ else {
+							/* insert in database */
+							db.insertADevice(device, md.getListA().get(i));
+						}
+						break;
+					}
+				}
+				/* if "break;" was executed
+				 * if there is an interface that there is not in overview
+				 * insert it!
+				 */
+				if (j == sizeMapA) {
+					System.out.println("kanonika den prepei na mpei edw pote...");
+				}
+			}
+
+
+//		--- wireless interfaces
+			sizeB = md.getListB().size();
+			/* get a list of the interfaces of the device - overview */
+			overview = wirelessMap.get(device);
+			sizeMapB = overview.size();
+
+			System.out.println("s.size: " + overview.size() + " md.size: " + md.getListB().size());
+			/* for every wired interface in monitor data */
+			for (i = 0; i != sizeB; ++i) {
+				/* check it with the overview */
+				for (j = 0; j != sizeMapB; ++j) {
+					/* for the same interface */
+					if (md.getListB().get(i).get_InterfaceName().equals(overview.get(j)[0])) {
+						/* check if the interface of the overview, is already in databe */
+						if (overview.get(j)[2].equals("1")) {
+							/* if they have the same hash code */
+							if (overview.get(j)[1].equals(Integer.toString(md.getListB().get(i).hashCode()))) {
+								// do nothing
+							} else {
+								/* else update */
+								db.updateADevice(device, md.getListB().get(i));
+							}
+						} /* otherwise */ else {
+							/* insert in database */
+							System.out.println("EDW VAZWWWWWWWWWWWWWWWW: " + md.getListB().get(i).get_InterfaceName());
+							db.insertADevice(device, md.getListB().get(i));
+						}
+						break;
+					}
+				}
+				/* if "break;" was executed
+				 * if there is an interface that there is not in overview
+				 * insert it!
+				 */
+				if (j == sizeMapB) {
+					System.out.println("kanonika den prepei na mpei edw pote...");
+				}
+			}
+		}
+
+		setUpdatedDb();
+	}
+
+	/* set the str[2] = 1 in the overview
+	 * this mean that the interface str[0] with hash code str[1] is
+	 * in database
+	 */
+	private void setUpdatedDb() {
+		for (Map.Entry<String, ArrayList<String[]>> entry : wiredMap.entrySet()) {
+			String device = entry.getKey();
+			ArrayList<String[]> list = entry.getValue();
+			ArrayList<String[]> listNew = new ArrayList<String[]>();
+
+			for (int i = 0; i != list.size(); ++i) {
+				String[] newStr = new String[3];
+				newStr[0] = list.get(i)[0];
+				newStr[1] = list.get(i)[1];
+				newStr[2] = Integer.toString(1);
+				listNew.add(newStr);
+			}
+			wiredMap.put(device, listNew);
+		}
+
+		for (Map.Entry<String, ArrayList<String[]>> entry : wirelessMap.entrySet()) {
+			String device = entry.getKey();
+			ArrayList<String[]> list = entry.getValue();
+			ArrayList<String[]> listNew = new ArrayList<String[]>();
+
+			for (int i = 0; i != list.size(); ++i) {
+				String[] newStr = new String[3];
+				newStr[0] = list.get(i)[0];
+				newStr[1] = list.get(i)[1];
+				newStr[2] = Integer.toString(1);
+				listNew.add(newStr);
+			}
+			wirelessMap.put(device, listNew);
+		}
+	}
+
+	private void deleteInterfaces() {
+
+		/* delete wired interfaces */
+		for (int i = 0; i != delWIf.size(); ++i) {
+			db.deleteDeviceWired(delWIf.get(i)[0], delWIf.get(i)[1]);
+		}
+
+		/* delete wireless interfaces */
+		for (int i = 0; i != delWirIf.size(); ++i) {
+			db.deleteDeviceWireless(delWirIf.get(i)[0], delWirIf.get(i)[1]);
+		}
+
+	}
 
 	public synchronized void printMemory() {
 		Iterator it;
@@ -287,136 +453,5 @@ public class CacheMemory {
 			System.out.println(it.next());
 		}
 		System.out.println("--- data end ---");
-	}
-
-	/* check the hashCode for EVERY interface */
-	public synchronized void updateDb() {
-		ArrayList<String[]> overview;
-
-		/* firstly, delete from database every interface that does not exist anymore */
-		deleteInterfaces();
-
-		/* for every monitor data that has reached the memory */
-		for (Map.Entry<String, MonitorData> entry : newData.entrySet()) {
-			MonitorData md = entry.getValue();
-			String device = entry.getKey();
-			int sizeA, sizeB, sizeC;
-			int sizeMapA, sizeMapB, sizeMapC;
-
-			System.out.println("I am going to update the database for device: " + device);
-
-//		--- wired interfaces
-			sizeA = md.getListA().size();
-			/* get a list of the interfaces of the device - overview */
-			overview = wiredMap.get(device);
-			sizeMapA = overview.size();
-
-			System.out.println("s.size: " + overview.size() + " md.size: " + md.getListA().size());
-			/* for every wired interface in monitor data */
-			int i, j;
-			for (i = 0; i != sizeA; ++i) {
-				/* check it with the overview */
-				for (j = 0; j != sizeMapA; ++j) {
-					/* for the same interface */
-					if (md.getListA().get(i).get_InterfaceName().equals(overview.get(j)[0])) {
-						/* check if the interface of the overview, is already in databe */
-						if (overview.get(j)[2].equals("1")) {
-							/* if they have the same hash code */
-							if (overview.get(j)[1].equals(Integer.toString(md.getListA().get(i).hashCode()))) {
-								// do nothing
-							} else {
-								/* else update */
-								db.updateADevice(device, md.getListA().get(i));
-							}
-						} /* otherwise */ else {
-							/* insert in database */
-							System.out.println("EDW VAZWWWWWWWWWWWWWWWW: " + md.getListA().get(i).get_InterfaceName());
-							db.insertADevice(device, md.getListA().get(i));
-						}
-						break;
-					}
-				}
-				/* if "break;" was executed
-				 * if there is an interface that there is not in overview
-				 * insert it!
-				 */
-				if (j == sizeMapA) {
-					System.out.println("kanonika den prepei na mpei edw pote...");
-				}
-			}
-
-
-//		--- wireless interfaces
-			sizeB = md.getListB().size();
-			/* get a list of the interfaces of the device - overview */
-			overview = wirelessMap.get(device);
-			sizeMapB = overview.size();
-
-			System.out.println("s.size: " + overview.size() + " md.size: " + md.getListB().size());
-			/* for every wired interface in monitor data */
-			for (i = 0; i != sizeB; ++i) {
-				/* check it with the overview */
-				for (j = 0; j != sizeMapB; ++j) {
-					/* for the same interface */
-					if (md.getListB().get(i).get_InterfaceName().equals(overview.get(j)[0])) {
-						/* check if the interface of the overview, is already in databe */
-						if (overview.get(j)[2].equals("1")) {
-							/* if they have the same hash code */
-							if (overview.get(j)[1].equals(Integer.toString(md.getListB().get(i).hashCode()))) {
-								// do nothing
-							} else {
-								/* else update */
-								db.updateADevice(device, md.getListB().get(i));
-							}
-						} /* otherwise */ else {
-							/* insert in database */
-							System.out.println("EDW VAZWWWWWWWWWWWWWWWW: " + md.getListB().get(i).get_InterfaceName());
-							db.insertADevice(device, md.getListB().get(i));
-						}
-						break;
-					}
-				}
-				/* if "break;" was executed
-				 * if there is an interface that there is not in overview
-				 * insert it!
-				 */
-				if (j == sizeMapB) {
-					System.out.println("kanonika den prepei na mpei edw pote...");
-				}
-			}
-		}
-
-		setUpdatedDb();
-	}
-
-	private void setUpdatedDb() {
-		for (Map.Entry<String, ArrayList<String[]>> entry : wiredMap.entrySet()) {
-			String device = entry.getKey();
-			ArrayList<String[]> list = entry.getValue();
-			ArrayList<String[]> listNew = new ArrayList<String[]>();
-
-			for (int i = 0; i != list.size(); ++i) {
-				String[] newStr = new String[3];
-				newStr[0] = list.get(i)[0];
-				newStr[1] = list.get(i)[1];
-				newStr[2] = Integer.toString(1);
-				listNew.add(newStr);
-			}
-			wiredMap.put(device, listNew);
-		}
-	}
-
-	private void deleteInterfaces() {
-
-		/* delete wired interfaces */
-		for (int i = 0; i != delWIf.size(); ++i) {
-			db.deleteDeviceWired(delWIf.get(i)[0], delWIf.get(i)[1]);
-		}
-
-		/* delete wireless interfaces */
-		for (int i = 0; i != delWirIf.size(); ++i) {
-			db.deleteDeviceWireless(delWirIf.get(i)[0], delWirIf.get(i)[1]);
-		}
-
 	}
 }
