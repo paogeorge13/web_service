@@ -19,7 +19,6 @@ import javax.swing.table.JTableHeader;
 public class PcTab extends JPanel {
 
     private JComboBox wiredBox, wirelessBox, APBox;
-    private static JButton refresh, refresh2, refresh3;
     private JLabel resultLabel;
     private BackgroundPanel wiredPanel, wirelessPanel, wirelessPanel2, APPanel, devicePanel, PCPanel;
     private JList deviceList;
@@ -103,12 +102,6 @@ public class PcTab extends JPanel {
         wiredBox.setBounds(15, 35, 100, 30);
 
 
-
-        refresh = new JButton("Refresh");
-        wiredPanel.add(refresh);
-        refresh.setBounds(15, 85, 80, 30);
-
-
         /* Create jtable with wired interfaces*/
         String wiredColumnNames[] = {"MAC", "IP", "NetAddress", "BfCast", "Default Gateway", "Packet Error"};
         dtmw = new DefaultTableModel();
@@ -135,10 +128,6 @@ public class PcTab extends JPanel {
         wirelessPanel.add(wirelessBox);
         wirelessBox.setBounds(15, 35, 100, 30);
 
-
-        refresh2 = new JButton("Refresh");
-        wirelessPanel.add(refresh2);
-        refresh2.setBounds(15, 85, 80, 30);
 
         /* Create jtable with wired interfaces*/
         String wirelessColumnNames[] = {"MAC", "IP", "Mask", "NetAddress", "BCast", "Default Gateway", "Max transfer", "Current transfer", "ConsumedRate", "PacketError"};
@@ -183,10 +172,6 @@ public class PcTab extends JPanel {
         APPanel.add(APBox);
         APBox.setBounds(15, 35, 100, 30);
 
-        refresh3 = new JButton("Refresh");
-        APPanel.add(refresh3);
-        refresh3.setBounds(15, 85, 80, 30);
-
 
         /* Create jtable with access points*/
         String APColumnNames[] = {"MAC", "Channel", "Mode", "SignalLevel"};
@@ -215,6 +200,9 @@ public class PcTab extends JPanel {
                 if (!dtmwf.getDataVector().isEmpty()) {
                     dtmwf.getDataVector().removeAllElements();
                 }
+                if (!dtmwg.getDataVector().isEmpty()) {
+                    dtmwg.getDataVector().removeAllElements();
+                }
                 if (!dtmap.getDataVector().isEmpty()) {
                     dtmap.getDataVector().removeAllElements();
                 }
@@ -227,6 +215,7 @@ public class PcTab extends JPanel {
                 if (!wiredMap.isEmpty()) {
                     resultList1 = wiredMap.get(deviceList.getSelectedValue());
                     if (resultList1 != null) {
+                        dbmw.addElement("---");
                         for (int i = 0; i != resultList1.size(); ++i) {
                             dbmw.addElement(resultList1.get(i)[0]);
                         }
@@ -235,6 +224,7 @@ public class PcTab extends JPanel {
                 if (!wirelessMap.isEmpty()) {
                     resultList2 = wirelessMap.get(deviceList.getSelectedValue());
                     if (resultList2 != null) {
+                        dbmwf.addElement("---");
                         for (int i = 0; i < resultList2.size(); i++) {
                             dbmwf.addElement(resultList2.get(i)[0]);
                         }
@@ -243,6 +233,7 @@ public class PcTab extends JPanel {
                 if (!apMap.isEmpty()) {
                     resultList3 = apMap.get(deviceList.getSelectedValue());
                     if (resultList3 != null) {
+                        dbmap.addElement("---");
                         for (int i = 0; i < resultList3.size(); i++) {
                             dbmap.addElement(resultList3.get(i)[0]);
                         }
@@ -258,9 +249,11 @@ public class PcTab extends JPanel {
                     public void itemStateChanged(ItemEvent ie) {
                         dtmw.getDataVector().removeAllElements();
                         String str = (String) ie.getItem();
-                        WiredInterface w = CacheMemory.getInstance().getInfoOfWired(selectedDevice, str);
-                        String wrow[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_PacketError()};
-                        dtmw.addRow(wrow);
+                        if (!str.equals("---")) {
+                            WiredInterface w = CacheMemory.getInstance().getInfoOfWired(selectedDevice, str);
+                            String wrow[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_PacketError()};
+                            dtmw.addRow(wrow);
+                        }
                     }
                 });
 
@@ -275,11 +268,13 @@ public class PcTab extends JPanel {
                     dtmwg.getDataVector().removeAllElements();
                 }
                 String str = (String) ie.getItem();
-                WirelessInterface w = CacheMemory.getInstance().getInfoOfWireless(selectedDevice, str);
-                String wrowf[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_InterfaceMask(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_MaxTransfer(), w.get_CurrentTransfer(), w.get_ConsumedRate(), w.get_PacketError()};
-                String wrowf1[] = {w.get_BaseStationMAC(), w.get_ESSID(), w.get_Channel(), w.get_Mode(), w.get_TransmitPower(), w.get_LinkQuality(), w.get_SignalLevel(), w.get_NoisePower(), w.get_DiscardedPackets()};
-                dtmwf.addRow(wrowf);
-                dtmwg.addRow(wrowf1);
+                if (!str.equals("---")) {
+                    WirelessInterface w = CacheMemory.getInstance().getInfoOfWireless(selectedDevice, str);
+                    String wrowf[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_InterfaceMask(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_MaxTransfer(), w.get_CurrentTransfer(), w.get_ConsumedRate(), w.get_PacketError()};
+                    String wrowf1[] = {w.get_BaseStationMAC(), w.get_ESSID(), w.get_Channel(), w.get_Mode(), w.get_TransmitPower(), w.get_LinkQuality(), w.get_SignalLevel(), w.get_NoisePower(), w.get_DiscardedPackets()};
+                    dtmwf.addRow(wrowf);
+                    dtmwg.addRow(wrowf1);
+                }
             }
         });
 
@@ -291,58 +286,14 @@ public class PcTab extends JPanel {
                     dtmap.getDataVector().removeAllElements();
                 }
                 String str = (String) ie.getItem();
+                if (!str.equals("---")) {
                 AccessPoint ap = CacheMemory.getInstance().getInfoOfAP(selectedDevice, str);
                 String aprow[] = {ap.get_APMAC(), ap.get_APChannel(), ap.get_APMode(), ap.get_APSignalLevel()};
                 dtmap.addRow(aprow);
-            }
-        });
-
-
-        refresh.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                dtmw.getDataVector().removeAllElements();
-                String str = (String) event.getActionCommand();
-                WiredInterface w = CacheMemory.getInstance().getInfoOfWired(selectedDevice, str);
-                String wrow[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_PacketError()};
-                dtmw.addRow(wrow);
-
-
-            }
-        });
-
-
-        refresh2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                if (!dtmwf.getDataVector().isEmpty()) {
-                    dtmwf.getDataVector().removeAllElements();
                 }
-                if (!dtmwg.getDataVector().isEmpty()) {
-                    dtmwg.getDataVector().removeAllElements();
-                }
-
-                String str = (String) event.getActionCommand();
-                WirelessInterface w = CacheMemory.getInstance().getInfoOfWireless(selectedDevice, str);
-                String wrowf[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_InterfaceMask(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_MaxTransfer(), w.get_CurrentTransfer(), w.get_ConsumedRate(), w.get_PacketError()};
-                String wrowf1[] = {w.get_BaseStationMAC(), w.get_ESSID(), w.get_Channel(), w.get_Mode(), w.get_TransmitPower(), w.get_LinkQuality(), w.get_SignalLevel(), w.get_NoisePower(), w.get_DiscardedPackets()};
-                dtmwf.addRow(wrowf);
-                dtmwg.addRow(wrowf1);
             }
         });
 
-
-        refresh3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                dtmap.getDataVector().removeAllElements();
-                String str = (String) event.getActionCommand();
-                String aprow[] = {selectedDevice, str};
-                dtmap.addRow(aprow);
-
-
-            }
-        });
 
 
 
