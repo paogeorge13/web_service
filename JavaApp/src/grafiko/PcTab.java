@@ -298,6 +298,53 @@ public class PcTab extends JPanel {
         });
 
 
+        refresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                dtmw.getDataVector().removeAllElements();
+                String str = (String) event.getActionCommand();
+                WiredInterface w = CacheMemory.getInstance().getInfoOfWired(selectedDevice, str);
+                String wrow[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_PacketError()};
+                dtmw.addRow(wrow);
+
+
+            }
+        });
+
+
+        refresh2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                if (!dtmwf.getDataVector().isEmpty()) {
+                    dtmwf.getDataVector().removeAllElements();
+                }
+                if (!dtmwg.getDataVector().isEmpty()) {
+                    dtmwg.getDataVector().removeAllElements();
+                }
+
+                String str = (String) event.getActionCommand();
+                WirelessInterface w = CacheMemory.getInstance().getInfoOfWireless(selectedDevice, str);
+                String wrowf[] = {w.get_InterfaceMAC(), w.get_InterfaceIP(), w.get_InterfaceMask(), w.get_NetworkAddress(), w.get_Bcast(), w.get_DefaultGetway(), w.get_MaxTransfer(), w.get_CurrentTransfer(), w.get_ConsumedRate(), w.get_PacketError()};
+                String wrowf1[] = {w.get_BaseStationMAC(), w.get_ESSID(), w.get_Channel(), w.get_Mode(), w.get_TransmitPower(), w.get_LinkQuality(), w.get_SignalLevel(), w.get_NoisePower(), w.get_DiscardedPackets()};
+                dtmwf.addRow(wrowf);
+                dtmwg.addRow(wrowf1);
+            }
+        });
+
+
+        refresh3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                dtmap.getDataVector().removeAllElements();
+                String str = (String) event.getActionCommand();
+                String aprow[] = {selectedDevice, str};
+                dtmap.addRow(aprow);
+
+
+            }
+        });
+
+
 
 
     }
