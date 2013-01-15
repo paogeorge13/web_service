@@ -127,7 +127,8 @@ public class CacheMemory {
 		return newData.containsKey("device");
 	}
 
-	public MonitorData getInfoOf(String device, String interf) {
+	public WiredInterface getInfoOfWif(String device, String interf) {
+		db.getInfoOfWired(device, interf);
 		return null;
 	}
 
@@ -323,7 +324,6 @@ public class CacheMemory {
 							}
 						} /* otherwise */ else {
 							/* insert in database */
-							System.out.println("EDW VAZWWWWWWWWWWWWWWWW: " + md.getListB().get(i).get_InterfaceName());
 							db.insertADevice(device, md.getListB().get(i));
 						}
 						break;
